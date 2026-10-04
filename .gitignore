@@ -1,0 +1,39 @@
+# Environment variables & secrets
+.env
+.env.*
+!.env.example
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# Python cache & build artifacts
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+**/dist/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node / Frontend artifacts
+node_modules/
+**/node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+*.local
+
+# Logs
+*.log
+logs/
+
+# OS and Editor junk
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
