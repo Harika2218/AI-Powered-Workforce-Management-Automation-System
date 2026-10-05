@@ -18,6 +18,7 @@ export const TimesheetsPage: React.FC = () => {
   const [pendingTimesheets, setPendingTimesheets] = useState<TimesheetRecord[]>([]);
   const [allTimesheets, setAllTimesheets] = useState<TimesheetRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Modals
   const [showSubmitModal, setShowSubmitModal] = useState(false);
@@ -44,19 +45,21 @@ export const TimesheetsPage: React.FC = () => {
   const fetchTimesheets = async () => {
     try {
       setLoading(true);
+      setError(null);
       if (role === 'EMPLOYEE') {
         const res = await timesheetsApi.getMyTimesheets();
         setMyTimesheets(res.items || []);
       } else {
         const [pend, all] = await Promise.all([
           timesheetsApi.getPendingTimesheets(),
-          timesheetsApi.listTimesheets(),
+          timesheetsApi.listTimesheets({ page_size: 100 }),
         ]);
         setPendingTimesheets(pend.items || []);
         setAllTimesheets(all.items || []);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error fetching timesheets:', err);
+      setError('Unable to load timesheet records from server.');
     } finally {
       setLoading(false);
     }
@@ -146,6 +149,21 @@ export const TimesheetsPage: React.FC = () => {
           <span>Submit Timesheet</span>
         </button>
       </div>
+
+      {error && (
+        <div className="p-4 rounded-xl bg-[#C8755A]/10 border border-[#C8755A]/30 flex items-center justify-between text-xs text-[#C8755A]">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{error}</span>
+          </div>
+          <button
+            onClick={fetchTimesheets}
+            className="px-3 py-1 bg-[#46513F] text-white text-xs font-bold rounded-lg hover:bg-[#46513F]/90 cursor-pointer"
+          >
+            Retry
+          </button>
+        </div>
+      )}
 
       {notification && (
         <div

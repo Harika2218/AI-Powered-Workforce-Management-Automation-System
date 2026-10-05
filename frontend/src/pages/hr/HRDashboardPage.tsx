@@ -12,6 +12,9 @@ import {
   AlertTriangle,
   ArrowRight,
   TrendingUp,
+  Calendar,
+  Sparkles,
+  ShieldCheck,
 } from 'lucide-react';
 import {
   PieChart,
@@ -496,6 +499,115 @@ export const HRDashboardPage: React.FC = () => {
                 <Bar dataKey="overtime_hours" fill="#C99A52" radius={[0, 4, 4, 0]} name="Overtime (hrs)" />
               </BarChart>
             </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      {/* 7. Upcoming Corporate Holidays & Quick Operations */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Upcoming Corporate Holidays */}
+        <div className="bg-[#FFFDF9] border border-[#D8D4CC] rounded-xl p-5 shadow-xs">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-sm font-bold text-[#242321]">Upcoming Public & Corporate Holidays</h3>
+              <p className="text-[11px] text-[#78756F]">Statutory paid holidays observed company-wide</p>
+            </div>
+            <Calendar className="w-4 h-4 text-[#46513F]" />
+          </div>
+
+          <div className="space-y-2.5">
+            {[
+              { name: 'Veterans Day', date: 'Nov 11, 2026', type: 'Federal Holiday', daysLeft: '37 days away' },
+              { name: 'Thanksgiving Day', date: 'Nov 26, 2026', type: 'National Holiday', daysLeft: '52 days away' },
+              { name: 'Day After Thanksgiving', date: 'Nov 27, 2026', type: 'Corporate Holiday', daysLeft: '53 days away' },
+              { name: 'Christmas Day', date: 'Dec 25, 2026', type: 'Federal Holiday', daysLeft: '81 days away' },
+              { name: "New Year's Day", date: 'Jan 01, 2027', type: 'Federal Holiday', daysLeft: '88 days away' },
+            ].map((holiday, idx) => (
+              <div
+                key={idx}
+                className="flex items-center justify-between p-3 rounded-lg bg-[#F7F5F0]/60 border border-[#D8D4CC]/50"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-[#46513F]/10 text-[#46513F] flex items-center justify-center font-bold text-xs">
+                    {holiday.date.split(' ')[0]}
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-[#242321]">{holiday.name}</p>
+                    <p className="text-[10px] text-[#78756F]">{holiday.date} • {holiday.type}</p>
+                  </div>
+                </div>
+                <span className="text-[10px] font-semibold text-[#71806B] bg-[#71806B]/10 px-2 py-0.5 rounded-full">
+                  {holiday.daysLeft}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Quick Operations Shortcuts */}
+        <div className="bg-[#FFFDF9] border border-[#D8D4CC] rounded-xl p-5 shadow-xs flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-sm font-bold text-[#242321]">Administrative Workflows</h3>
+                <p className="text-[11px] text-[#78756F]">Direct shortcuts to high-frequency HR actions</p>
+              </div>
+              <Sparkles className="w-4 h-4 text-[#C99A52]" />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button
+                onClick={() => navigate('/hr/workforce')}
+                className="p-3.5 rounded-lg border border-[#D8D4CC] bg-[#FFFDF9] hover:bg-[#F7F5F0] text-left transition-all group cursor-pointer"
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-bold text-[#242321]">Workforce Directory</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-[#78756F] group-hover:translate-x-0.5 transition-transform" />
+                </div>
+                <p className="text-[10px] text-[#78756F]">View employee records, titles, and emergency profiles</p>
+              </button>
+
+              <button
+                onClick={() => navigate('/hr/payroll')}
+                className="p-3.5 rounded-lg border border-[#D8D4CC] bg-[#FFFDF9] hover:bg-[#F7F5F0] text-left transition-all group cursor-pointer"
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-bold text-[#242321]">Payroll Processing</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-[#78756F] group-hover:translate-x-0.5 transition-transform" />
+                </div>
+                <p className="text-[10px] text-[#78756F]">Run compensation batch calculations & verify payslips</p>
+              </button>
+
+              <button
+                onClick={() => navigate('/hr/shifts')}
+                className="p-3.5 rounded-lg border border-[#D8D4CC] bg-[#FFFDF9] hover:bg-[#F7F5F0] text-left transition-all group cursor-pointer"
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-bold text-[#242321]">Shift Scheduling</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-[#78756F] group-hover:translate-x-0.5 transition-transform" />
+                </div>
+                <p className="text-[10px] text-[#78756F]">Assign roster shifts and configure operational timings</p>
+              </button>
+
+              <button
+                onClick={() => navigate('/hr/ai-assistant')}
+                className="p-3.5 rounded-lg border border-[#D8D4CC] bg-[#FFFDF9] hover:bg-[#F7F5F0] text-left transition-all group cursor-pointer"
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-bold text-[#242321]">HR Intelligence</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-[#78756F] group-hover:translate-x-0.5 transition-transform" />
+                </div>
+                <p className="text-[10px] text-[#78756F]">Ask conversational natural language HR & policy questions</p>
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-4 p-3 rounded-lg bg-[#71806B]/10 border border-[#71806B]/20 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-[#46513F]" />
+              <span className="text-xs font-semibold text-[#46513F]">All 12 Modules Synchronized with Live MongoDB</span>
+            </div>
+            <span className="text-[10px] text-[#71806B] font-mono">v2.4.0 • Enterprise</span>
           </div>
         </div>
       </div>

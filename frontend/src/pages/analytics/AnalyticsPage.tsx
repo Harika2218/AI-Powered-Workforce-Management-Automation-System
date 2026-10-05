@@ -33,29 +33,33 @@ export const AnalyticsPage: React.FC = () => {
   const [leaveData, setLeaveData] = useState<any>(null);
   const [overtimeData, setOvertimeData] = useState<any>(null);
   const [performanceData, setPerformanceData] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchAllAnalytics = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [wf, att, lv, ot, pf] = await Promise.all([
+        analyticsApi.getWorkforceAnalytics(),
+        analyticsApi.getAttendanceAnalytics(),
+        analyticsApi.getLeaveAnalytics(),
+        analyticsApi.getOvertimeAnalytics(),
+        analyticsApi.getPerformanceAnalytics(),
+      ]);
+      setWorkforceData(wf);
+      setAttendanceData(att);
+      setLeaveData(lv);
+      setOvertimeData(ot);
+      setPerformanceData(pf);
+    } catch (err: any) {
+      console.error('Failed to load analytics:', err);
+      setError('Unable to load analytics calculations from database.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchAllAnalytics = async () => {
-      setLoading(true);
-      try {
-        const [wf, att, lv, ot, pf] = await Promise.all([
-          analyticsApi.getWorkforceAnalytics(),
-          analyticsApi.getAttendanceAnalytics(),
-          analyticsApi.getLeaveAnalytics(),
-          analyticsApi.getOvertimeAnalytics(),
-          analyticsApi.getPerformanceAnalytics(),
-        ]);
-        setWorkforceData(wf);
-        setAttendanceData(att);
-        setLeaveData(lv);
-        setOvertimeData(ot);
-        setPerformanceData(pf);
-      } catch (err) {
-        console.error('Failed to load analytics:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchAllAnalytics();
   }, []);
 
@@ -63,6 +67,17 @@ export const AnalyticsPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {error && (
+        <div className="p-4 rounded-xl bg-[#C8755A]/10 border border-[#C8755A]/30 flex items-center justify-between text-xs text-[#C8755A]">
+          <span>{error}</span>
+          <button
+            onClick={fetchAllAnalytics}
+            className="px-3 py-1 bg-[#46513F] text-white text-xs font-bold rounded-lg hover:bg-[#46513F]/90 cursor-pointer"
+          >
+            Retry
+          </button>
+        </div>
+      )}
       <div>
         <h2 className="text-2xl font-bold tracking-tight text-[#242321]">
           Workforce Analytics & Intelligence

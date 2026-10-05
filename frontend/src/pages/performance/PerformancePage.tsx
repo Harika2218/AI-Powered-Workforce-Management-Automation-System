@@ -14,6 +14,9 @@ export const PerformancePage: React.FC = () => {
 
   const [reviews, setReviews] = useState<PerformanceReview[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'Completed' | 'Pending' | 'Draft'>('ALL');
+  const [search, setSearch] = useState('');
 
   // New review modal
   const [showModal, setShowModal] = useState(false);
@@ -32,18 +35,22 @@ export const PerformancePage: React.FC = () => {
   const fetchReviews = async () => {
     try {
       setLoading(true);
+      setError(null);
       if (role === 'EMPLOYEE') {
         const data = await performanceApi.getMyPerformance();
         setReviews(data || []);
       } else {
-        const res = await performanceApi.listReviews();
+        const res = await performanceApi.listReviews({
+          page_size: 100,
+        });
         setReviews(res.items || []);
 
         const emps = await employeesApi.getEmployees({ page_size: 100 });
         setEmployeesList(emps.items || []);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to load performance reviews:', err);
+      setError('Unable to load performance evaluation records from database.');
     } finally {
       setLoading(false);
     }
@@ -79,6 +86,18 @@ export const PerformancePage: React.FC = () => {
     }
   };
 
+  const filteredReviews = reviews.filter((r) => {
+    const matchesStatus =
+      statusFilter === 'ALL' ||
+      (r.status || '').toLowerCase() === statusFilter.toLowerCase();
+    const matchesSearch =
+      !search ||
+      r.employee_name?.toLowerCase().includes(search.toLowerCase()) ||
+      r.employee_id?.toLowerCase().includes(search.toLowerCase()) ||
+      r.department?.toLowerCase().includes(search.toLowerCase());
+    return matchesStatus && matchesSearch;
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -104,6 +123,18 @@ export const PerformancePage: React.FC = () => {
         )}
       </div>
 
+      {error && (
+        <div className="p-4 rounded-xl bg-[#C8755A]/10 border border-[#C8755A]/30 flex items-center justify-between text-xs text-[#C8755A]">
+          <span>{error}</span>
+          <button
+            onClick={fetchReviews}
+            className="px-3 py-1 bg-[#46513F] text-white text-xs font-bold rounded-lg hover:bg-[#46513F]/90 cursor-pointer"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
       {notification && (
         <div className="p-3.5 rounded-xl bg-[#71806B]/15 border border-[#71806B]/30 text-[#46513F] text-xs font-semibold flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -116,18 +147,49 @@ export const PerformancePage: React.FC = () => {
         </div>
       )}
 
+      {/* Filter and Search Bar */}
+      {role !== 'EMPLOYEE' && (
+        <div className="bg-[#FFFDF9] border border-[#D8D4CC] rounded-xl p-3.5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-1.5 overflow-x-auto">
+            {(['ALL', 'Completed', 'Pending', 'Draft'] as const).map((st) => (
+              <button
+                key={st}
+                onClick={() => setStatusFilter(st)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  statusFilter === st
+                    ? 'bg-[#46513F] text-white'
+                    : 'bg-[#F7F5F0] text-[#78756F] hover:bg-[#EAE6DE]'
+                }`}
+              >
+                {st === 'ALL' ? 'All Reviews' : st}
+              </button>
+            ))}
+          </div>
+
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search employee or department..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="px-3 py-1.5 text-xs border border-[#D8D4CC] rounded-lg bg-[#FFFDF9] text-[#242321] outline-none w-64"
+            />
+          </div>
+        </div>
+      )}
+
       {/* Reviews Cards List */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {loading ? (
           <div className="col-span-2 py-12 text-center text-xs text-[#78756F]">
             Loading performance evaluations...
           </div>
-        ) : reviews.length === 0 ? (
+        ) : filteredReviews.length === 0 ? (
           <div className="col-span-2 py-12 text-center text-xs text-[#78756F] bg-[#FFFDF9] border border-[#D8D4CC] rounded-2xl">
             No performance evaluation records found.
           </div>
         ) : (
-          reviews.map((rev) => (
+          filteredReviews.map((rev) => (
             <div
               key={rev.review_id}
               className="bg-[#FFFDF9] border border-[#D8D4CC] rounded-2xl p-5 shadow-xs flex flex-col justify-between"

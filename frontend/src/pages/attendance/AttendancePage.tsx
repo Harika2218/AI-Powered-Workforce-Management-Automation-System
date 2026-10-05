@@ -27,6 +27,7 @@ export const AttendancePage: React.FC = () => {
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'records' | 'anomalies'>('records');
 
   // Employee action states
@@ -36,6 +37,7 @@ export const AttendancePage: React.FC = () => {
   const fetchAttendance = async () => {
     try {
       setLoading(true);
+      setError(null);
       if (role === 'EMPLOYEE') {
         const res = await attendanceApi.getMyAttendance({
           date_from: dateFrom || undefined,
@@ -63,8 +65,9 @@ export const AttendancePage: React.FC = () => {
         const anom = await attendanceApi.getAnomalies(15);
         setAnomalies(anom || []);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to fetch attendance:', err);
+      setError('Unable to load attendance and time tracking records from database.');
     } finally {
       setLoading(false);
     }
@@ -172,6 +175,57 @@ export const AttendancePage: React.FC = () => {
           <span>{message}</span>
         </div>
       )}
+
+      {error && (
+        <div className="p-4 rounded-xl bg-[#C8755A]/10 border border-[#C8755A]/30 flex items-center justify-between text-xs text-[#C8755A]">
+          <span>{error}</span>
+          <button
+            onClick={fetchAttendance}
+            className="px-3 py-1 bg-[#46513F] text-white text-xs font-bold rounded-lg hover:bg-[#46513F]/90 cursor-pointer"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
+      {/* Attendance Summary KPI Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
+        <div className="bg-[#FFFDF9] border border-[#D8D4CC] rounded-xl p-4 shadow-xs">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-[#78756F]">Present</span>
+          <p className="text-xl font-extrabold text-[#71806B] mt-1">
+            {records.filter((r) => ['Present', 'Late', 'Half Day'].includes(r.status)).length}
+          </p>
+          <span className="text-[10px] text-[#78756F]">Active in records</span>
+        </div>
+        <div className="bg-[#FFFDF9] border border-[#D8D4CC] rounded-xl p-4 shadow-xs">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-[#78756F]">Late Arrivals</span>
+          <p className="text-xl font-extrabold text-[#C99A52] mt-1">
+            {records.filter((r) => r.status === 'Late').length}
+          </p>
+          <span className="text-[10px] text-[#78756F]">After shift start</span>
+        </div>
+        <div className="bg-[#FFFDF9] border border-[#D8D4CC] rounded-xl p-4 shadow-xs">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-[#78756F]">Absent</span>
+          <p className="text-xl font-extrabold text-[#C8755A] mt-1">
+            {records.filter((r) => r.status === 'Absent').length}
+          </p>
+          <span className="text-[10px] text-[#78756F]">Unplanned absence</span>
+        </div>
+        <div className="bg-[#FFFDF9] border border-[#D8D4CC] rounded-xl p-4 shadow-xs">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-[#78756F]">On Leave</span>
+          <p className="text-xl font-extrabold text-[#46513F] mt-1">
+            {records.filter((r) => r.status === 'On Leave').length}
+          </p>
+          <span className="text-[10px] text-[#78756F]">Approved leaves</span>
+        </div>
+        <div className="bg-[#FFFDF9] border border-[#D8D4CC] rounded-xl p-4 shadow-xs">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-[#78756F]">Total Overtime</span>
+          <p className="text-xl font-extrabold text-[#242321] mt-1">
+            {Math.round(records.reduce((acc, r) => acc + (r.overtime_hours || 0), 0) * 10) / 10} <span className="text-xs font-normal text-[#78756F]">hrs</span>
+          </p>
+          <span className="text-[10px] text-[#78756F]">Cumulative hours</span>
+        </div>
+      </div>
 
       {/* Tabs for HR / Manager (Records vs Anomalies) */}
       {role !== 'EMPLOYEE' && (

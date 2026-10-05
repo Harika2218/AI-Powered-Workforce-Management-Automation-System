@@ -92,7 +92,7 @@ class AnalyticsService:
         leave_agg = list(db["leave_requests"].aggregate([
             {"$group": {"_id": "$leave_type", "count": {"$sum": 1}}},
         ]))
-        leave_dist = [{"leave_type": l["_id"], "count": l["count"]} for l in leave_agg]
+        leave_dist = [{"type": str(l["_id"]).lower(), "leave_type": str(l["_id"]), "count": l["count"]} for l in leave_agg]
 
         # Overtime Distribution by Department
         ot_agg = list(db["attendance"].aggregate([
@@ -168,7 +168,7 @@ class AnalyticsService:
             {"$match": {"employee_id": {"$in": team_ids}}},
             {"$group": {"_id": "$leave_type", "count": {"$sum": 1}}},
         ]))
-        team_leave_dist = [{"leave_type": l["_id"], "count": l["count"]} for l in leave_agg]
+        team_leave_dist = [{"type": str(l["_id"]).lower(), "leave_type": str(l["_id"]), "count": l["count"]} for l in leave_agg]
 
         # Avg working hours across team over past 14 days
         hrs_agg = list(db["attendance"].aggregate([

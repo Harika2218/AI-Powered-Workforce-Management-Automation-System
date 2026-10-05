@@ -223,7 +223,7 @@ export interface PerformanceReview {
   strengths: string;
   areas_for_improvement: string;
   comments: string;
-  status: 'DRAFT' | 'SUBMITTED' | 'FINALIZED';
+  status: 'DRAFT' | 'SUBMITTED' | 'FINALIZED' | 'Completed' | 'Pending' | 'Draft' | string;
   created_at: string;
 }
 

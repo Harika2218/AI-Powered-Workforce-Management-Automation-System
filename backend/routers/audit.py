@@ -34,8 +34,34 @@ def get_audit_logs(
     cursor = db["audit_logs"].find(query).sort("timestamp", DESCENDING).skip(skip).limit(page_size)
 
     total_pages = (total + page_size - 1) // page_size if total > 0 else 1
+    
+    # Preload user mapping for fast enrichment
+    user_ids = [doc.get("user_id") for doc in cursor if doc.get("user_id")]
+    cursor.rewind()
+    user_map = {}
+    if user_ids:
+        for u in db["users"].find({"user_id": {"$in": user_ids}}, {"user_id": 1, "email": 1, "role": 1}):
+            user_map[u["user_id"]] = u
+
+    items = []
+    for doc in cursor:
+        d = serialize_doc(doc)
+        uid = d.get("user_id")
+        user_info = user_map.get(uid, {})
+        d["user_email"] = d.get("user_email") or user_info.get("email") or uid or "system@company.com"
+        d["user_role"] = d.get("user_role") or user_info.get("role") or "SYSTEM"
+        d["entity"] = d.get("entity") or d.get("entity_type") or "SYSTEM"
+        
+        meta = d.get("metadata") or {}
+        if not d.get("details"):
+            if isinstance(meta, dict) and meta:
+                d["details"] = ", ".join(f"{k}: {v}" for k, v in meta.items())
+            else:
+                d["details"] = f"{d.get('action', 'Action')} performed on {d.get('entity_id', 'record')}"
+        items.append(d)
+
     return {
-        "items": [serialize_doc(doc) for doc in cursor],
+        "items": items,
         "total": total,
         "page": page,
         "page_size": page_size,

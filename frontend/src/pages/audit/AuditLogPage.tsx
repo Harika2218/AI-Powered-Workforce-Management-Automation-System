@@ -12,10 +12,12 @@ export const AuditLogPage: React.FC = () => {
   const [actionFilter, setActionFilter] = useState('');
   const [entityFilter, setEntityFilter] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchLogs = async () => {
     try {
       setLoading(true);
+      setError(null);
       const res = await auditApi.getAuditLogs({
         action: actionFilter || undefined,
         entity_type: entityFilter || undefined,
@@ -25,8 +27,9 @@ export const AuditLogPage: React.FC = () => {
       setLogs(res.items || []);
       setTotal(res.total || 0);
       setTotalPages(res.total_pages || 1);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to load audit logs:', err);
+      setError('Unable to load compliance audit logs from server.');
     } finally {
       setLoading(false);
     }
@@ -52,6 +55,18 @@ export const AuditLogPage: React.FC = () => {
           <span>HR Administrative Clearance Only</span>
         </div>
       </div>
+
+      {error && (
+        <div className="p-4 rounded-xl bg-[#C8755A]/10 border border-[#C8755A]/30 flex items-center justify-between text-xs text-[#C8755A]">
+          <span>{error}</span>
+          <button
+            onClick={fetchLogs}
+            className="px-3 py-1 bg-[#46513F] text-white text-xs font-bold rounded-lg hover:bg-[#46513F]/90 cursor-pointer"
+          >
+            Retry
+          </button>
+        </div>
+      )}
 
       {/* Filter toolbar */}
       <div className="bg-[#FFFDF9] border border-[#D8D4CC] rounded-xl p-4 shadow-xs flex flex-wrap items-center gap-3">

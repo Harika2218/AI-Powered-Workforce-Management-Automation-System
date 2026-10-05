@@ -20,6 +20,7 @@ export const PayrollPage: React.FC = () => {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Month filter
   const currentMonthStr = new Date().toISOString().slice(0, 7); // YYYY-MM
@@ -36,6 +37,7 @@ export const PayrollPage: React.FC = () => {
   const fetchPayroll = async () => {
     try {
       setLoading(true);
+      setError(null);
       if (role === 'EMPLOYEE') {
         const data = await payrollApi.getMyPayslips();
         setRecords(data || []);
@@ -54,8 +56,9 @@ export const PayrollPage: React.FC = () => {
           setEmployeesList(emps.items || []);
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to load payroll records:', err);
+      setError('Unable to load payroll statements from database.');
     } finally {
       setLoading(false);
     }
@@ -120,6 +123,18 @@ export const PayrollPage: React.FC = () => {
           </button>
         )}
       </div>
+
+      {error && (
+        <div className="p-4 rounded-xl bg-[#C8755A]/10 border border-[#C8755A]/30 flex items-center justify-between text-xs text-[#C8755A]">
+          <span>{error}</span>
+          <button
+            onClick={fetchPayroll}
+            className="px-3 py-1 bg-[#46513F] text-white text-xs font-bold rounded-lg hover:bg-[#46513F]/90 cursor-pointer"
+          >
+            Retry
+          </button>
+        </div>
+      )}
 
       {notification && (
         <div className="p-3.5 rounded-xl bg-[#71806B]/15 border border-[#71806B]/30 text-[#46513F] text-xs font-semibold flex items-center justify-between">
@@ -211,10 +226,10 @@ export const PayrollPage: React.FC = () => {
                         <span className="block text-[10px] text-[#78756F] font-mono">{r.employee_id}</span>
                       </td>
                     )}
-                    <td className="py-3 px-4 font-mono font-medium text-[#242321]">{r.month}</td>
+                    <td className="py-3 px-4 font-mono font-medium text-[#242321]">{r.month || (r as any).pay_period}</td>
                     <td className="py-3 px-4 text-[#78756F]">${r.basic_salary?.toLocaleString()}</td>
                     <td className="py-3 px-4 text-[#78756F]">+${r.allowances?.toLocaleString()}</td>
-                    <td className="py-3 px-4 text-[#C99A52] font-medium">+${r.overtime_pay?.toLocaleString()}</td>
+                    <td className="py-3 px-4 text-[#C99A52] font-medium">+${(r.overtime_pay ?? (r as any).overtime_amount ?? 0).toLocaleString()}</td>
                     <td className="py-3 px-4 text-[#C8755A]">-${r.deductions?.toLocaleString()}</td>
                     <td className="py-3 px-4 text-[#78756F]">${r.gross_salary?.toLocaleString()}</td>
                     <td className="py-3 px-4 text-right font-mono font-bold text-sm text-[#46513F]">
@@ -222,7 +237,7 @@ export const PayrollPage: React.FC = () => {
                     </td>
                     <td className="py-3 px-4 text-center">
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#71806B]/15 text-[#46513F]">
-                        {r.payment_status}
+                        {r.payment_status || (r as any).status || 'PAID'}
                       </span>
                     </td>
                   </tr>

@@ -6,8 +6,9 @@ PayrollStatus = Literal["Draft", "Calculated", "Finalized"]
 
 class PayrollCreate(BaseModel):
     employee_id: str
-    pay_period: str = Field(..., pattern=r"^\d{4}-\d{2}$", description="YYYY-MM")
-    basic_salary: float = Field(..., ge=0)
+    pay_period: str | None = Field(default=None, description="YYYY-MM")
+    month: str | None = Field(default=None, description="Alias for pay_period YYYY-MM")
+    basic_salary: float | None = Field(default=None, ge=0)
     allowances: float = Field(default=0.0, ge=0)
     deductions: float = Field(default=0.0, ge=0)
     overtime_hours: float = Field(default=0.0, ge=0)
@@ -29,12 +30,15 @@ class PayrollResponse(BaseModel):
     employee_name: str | None = None
     department: str | None = None
     pay_period: str
+    month: str | None = None
     basic_salary: float
     allowances: float
     deductions: float
     overtime_hours: float
     overtime_amount: float
+    overtime_pay: float | None = None
     gross_salary: float
     net_salary: float
     status: PayrollStatus
+    payment_status: str | None = None
     processed_at: str | None = None

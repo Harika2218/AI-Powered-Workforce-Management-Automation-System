@@ -66,6 +66,7 @@ def update_timesheet(
     return TimesheetService.update_timesheet(current_user, timesheet_id, payload)
 
 
+@router.post("/{timesheet_id}/approve", summary="Approve Timesheet (POST)")
 @router.patch("/{timesheet_id}/approve", summary="Approve Timesheet")
 def approve_timesheet(
     timesheet_id: str,
@@ -78,6 +79,7 @@ def approve_timesheet(
     return TimesheetService.approve_timesheet(current_user, timesheet_id, review)
 
 
+@router.post("/{timesheet_id}/reject", summary="Reject Timesheet (POST)")
 @router.patch("/{timesheet_id}/reject", summary="Reject Timesheet")
 def reject_timesheet(
     timesheet_id: str,

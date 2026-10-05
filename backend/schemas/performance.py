@@ -1,26 +1,30 @@
 from typing import Literal
 from pydantic import BaseModel, Field
 
-ReviewStatus = Literal["Draft", "Completed"]
+ReviewStatus = Literal["Draft", "Pending", "Completed"]
 
 
 class PerformanceCreate(BaseModel):
     employee_id: str
-    review_period: str = Field(..., min_length=4, max_length=20, description="e.g. 2026-Q1, 2026-Annual")
+    review_period: str | None = Field(default=None, description="e.g. 2026-Q1, 2026-Annual")
+    period: str | None = Field(default=None, description="Alias for review_period")
     overall_score: float = Field(..., ge=1.0, le=5.0, description="Score from 1.0 to 5.0")
-    goals: list[str] = []
-    strengths: list[str] = []
-    areas_for_improvement: list[str] = []
-    manager_comments: str = Field(..., min_length=3, max_length=1000)
+    goals_rating: float | None = Field(default=4.0, ge=1.0, le=5.0)
+    goals: list[str] | str | None = []
+    strengths: list[str] | str | None = []
+    areas_for_improvement: list[str] | str | None = []
+    manager_comments: str | None = None
+    comments: str | None = None
     status: ReviewStatus = "Completed"
 
 
 class PerformanceUpdate(BaseModel):
     overall_score: float | None = Field(default=None, ge=1.0, le=5.0)
-    goals: list[str] | None = None
-    strengths: list[str] | None = None
-    areas_for_improvement: list[str] | None = None
+    goals: list[str] | str | None = None
+    strengths: list[str] | str | None = None
+    areas_for_improvement: list[str] | str | None = None
     manager_comments: str | None = None
+    comments: str | None = None
     status: ReviewStatus | None = None
 
 
@@ -30,13 +34,17 @@ class PerformanceResponse(BaseModel):
     employee_name: str | None = None
     department: str | None = None
     review_period: str
+    period: str | None = None
     overall_score: float
-    goals: list[str]
-    strengths: list[str]
-    areas_for_improvement: list[str]
-    manager_comments: str
+    goals_rating: float | None = None
+    goals: list[str] | str = []
+    strengths: list[str] | str = []
+    areas_for_improvement: list[str] | str = []
+    manager_comments: str | None = ""
+    comments: str | None = ""
     status: ReviewStatus
     reviewer_id: str | None = None
+    reviewer_name: str | None = None
     updated_at: str | None = None
 
 

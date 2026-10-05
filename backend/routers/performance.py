@@ -48,6 +48,7 @@ def get_team_reviews(current_user: dict = Depends(require_manager_or_hr)):
 
 
 @router.get("/analytics", response_model=PerformanceAnalytics, summary="Performance Analytics")
+@router.get("/summary", response_model=PerformanceAnalytics, summary="Performance Analytics Summary (Alias)")
 def get_performance_analytics(current_user: dict = Depends(require_hr)):
     """
     Calculate organization-wide performance score averages, department metrics, and distribution (HR only).
@@ -56,9 +57,12 @@ def get_performance_analytics(current_user: dict = Depends(require_hr)):
 
 
 @router.get("", summary="List All Performance Reviews")
+@router.get("/reviews", summary="List All Performance Reviews (Alias)")
 def list_all_reviews(
     department: str | None = Query(None),
     review_period: str | None = Query(None),
+    period: str | None = Query(None),
+    status: str | None = Query(None),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     current_user: dict = Depends(require_hr),
@@ -70,6 +74,8 @@ def list_all_reviews(
         current_user=current_user,
         department=department,
         review_period=review_period,
+        period=period,
+        status=status,
         page=page,
         page_size=page_size,
     )

@@ -87,16 +87,35 @@ class PerformanceService:
     @staticmethod
     def get_my_reviews(current_user: dict) -> list[dict]:
         db = get_db()
+    @staticmethod
+    def _enrich_review(d: dict, emp_name: str | None, dept: str | None) -> dict:
+        d["employee_name"] = emp_name
+        d["department"] = dept
+        d["period"] = d.get("review_period") or d.get("period") or "2026-Q3"
+        d["review_period"] = d["period"]
+        d["comments"] = d.get("manager_comments") or d.get("comments") or ""
+        d["manager_comments"] = d["comments"]
+        if not d.get("goals_rating"):
+            d["goals_rating"] = round(min(5.0, d.get("overall_score", 4.0) * 0.95), 1)
+        if isinstance(d.get("strengths"), list):
+            d["strengths"] = ", ".join(d["strengths"])
+        if isinstance(d.get("areas_for_improvement"), list):
+            d["areas_for_improvement"] = ", ".join(d["areas_for_improvement"])
+        if isinstance(d.get("goals"), list):
+            d["goals"] = ", ".join(d["goals"])
+        return d
+
+    @staticmethod
+    def get_my_reviews(current_user: dict) -> list[dict]:
+        db = get_db()
         emp_id = current_user.get("employee_id")
         emp = db["employees"].find_one({"employee_id": emp_id})
 
-        cursor = db["performance"].find({"employee_id": emp_id, "status": "Completed"}).sort("updated_at", DESCENDING)
+        cursor = db["performance"].find({"employee_id": emp_id}).sort("updated_at", DESCENDING)
         records = []
         for doc in cursor:
             d = serialize_doc(doc)
-            d["employee_name"] = emp["full_name"] if emp else None
-            d["department"] = emp["department"] if emp else None
-            records.append(d)
+            records.append(PerformanceService._enrich_review(d, emp.get("full_name") if emp else None, emp.get("department") if emp else None))
         return records
 
     @staticmethod
@@ -115,9 +134,7 @@ class PerformanceService:
         for doc in cursor:
             d = serialize_doc(doc)
             info = emp_map.get(d["employee_id"], (None, None))
-            d["employee_name"] = info[0]
-            d["department"] = info[1]
-            records.append(d)
+            records.append(PerformanceService._enrich_review(d, info[0], info[1]))
         return records
 
     @staticmethod
@@ -125,13 +142,19 @@ class PerformanceService:
         current_user: dict,
         department: str | None = None,
         review_period: str | None = None,
+        period: str | None = None,
+        status: str | None = None,
         page: int = 1,
         page_size: int = 20,
     ) -> dict[str, Any]:
         db = get_db()
         query: dict[str, Any] = {}
-        if review_period:
-            query["review_period"] = review_period
+        eff_period = review_period or period
+        if eff_period:
+            query["$or"] = [{"review_period": eff_period}, {"period": eff_period}]
+
+        if status:
+            query["status"] = status
 
         if department:
             dept_emp_ids = [d["employee_id"] for d in db["employees"].find({"department": department}, {"employee_id": 1})]
@@ -150,9 +173,7 @@ class PerformanceService:
         for doc in cursor:
             d = serialize_doc(doc)
             info = emp_map.get(d["employee_id"], (None, None))
-            d["employee_name"] = info[0]
-            d["department"] = info[1]
-            items.append(d)
+            items.append(PerformanceService._enrich_review(d, info[0], info[1]))
 
         total_pages = (total + page_size - 1) // page_size if total > 0 else 1
         return {

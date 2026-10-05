@@ -10,6 +10,8 @@ import {
   Check,
   X,
   AlertCircle,
+  Search,
+  RotateCw,
 } from 'lucide-react';
 
 export const LeavePage: React.FC = () => {
@@ -38,9 +40,14 @@ export const LeavePage: React.FC = () => {
   const [reason, setReason] = useState('');
   const [recordsTab, setRecordsTab] = useState<'all' | 'my'>('all');
 
+  const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('ALL');
+
   const fetchLeaveData = async () => {
     try {
       setLoading(true);
+      setError(null);
       // Fetch balances if employee id exists
       if (user?.employee_id) {
         try {
@@ -65,8 +72,9 @@ export const LeavePage: React.FC = () => {
         setAllLeaves(allRes.items || []);
         setMyLeaves(myRes.items || []);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to load leave data:', err);
+      setError('Unable to load leave records from backend. Please verify your connection.');
     } finally {
       setLoading(false);
     }
@@ -188,38 +196,100 @@ export const LeavePage: React.FC = () => {
         </div>
       )}
 
-      {/* Balance Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-[#FFFDF9] border border-[#D8D4CC] rounded-xl p-4 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#78756F]">
-              Annual Leave Balance
-            </span>
-            <p className="text-2xl font-extrabold text-[#46513F] mt-1">{balances.annual} days</p>
+      {error && (
+        <div className="p-4 rounded-xl border border-[#C8755A]/30 bg-[#C8755A]/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-[#C8755A] text-xs font-medium">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{error}</span>
           </div>
-          <CalendarDays className="w-6 h-6 text-[#46513F]/40" />
+          <button
+            onClick={fetchLeaveData}
+            className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#46513F] text-white text-xs font-semibold rounded-lg hover:bg-[#46513F]/90 cursor-pointer shrink-0"
+          >
+            <RotateCw className="w-3.5 h-3.5" />
+            <span>Retry Connection</span>
+          </button>
         </div>
+      )}
 
-        <div className="bg-[#FFFDF9] border border-[#D8D4CC] rounded-xl p-4 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#78756F]">
-              Sick Leave Balance
-            </span>
-            <p className="text-2xl font-extrabold text-[#C99A52] mt-1">{balances.sick} days</p>
+      {/* KPI Summary Cards */}
+      {role === 'EMPLOYEE' ? (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-[#FFFDF9] border border-[#D8D4CC] rounded-xl p-4 shadow-xs flex items-center justify-between">
+            <div>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#78756F]">
+                Annual Leave Balance
+              </span>
+              <p className="text-2xl font-extrabold text-[#46513F] mt-1">{balances.annual} days</p>
+            </div>
+            <CalendarDays className="w-6 h-6 text-[#46513F]/40" />
           </div>
-          <CalendarDays className="w-6 h-6 text-[#C99A52]/40" />
-        </div>
 
-        <div className="bg-[#FFFDF9] border border-[#D8D4CC] rounded-xl p-4 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#78756F]">
-              Casual Leave Balance
-            </span>
-            <p className="text-2xl font-extrabold text-[#71806B] mt-1">{balances.casual} days</p>
+          <div className="bg-[#FFFDF9] border border-[#D8D4CC] rounded-xl p-4 shadow-xs flex items-center justify-between">
+            <div>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#78756F]">
+                Sick Leave Balance
+              </span>
+              <p className="text-2xl font-extrabold text-[#C99A52] mt-1">{balances.sick} days</p>
+            </div>
+            <CalendarDays className="w-6 h-6 text-[#C99A52]/40" />
           </div>
-          <CalendarDays className="w-6 h-6 text-[#71806B]/40" />
+
+          <div className="bg-[#FFFDF9] border border-[#D8D4CC] rounded-xl p-4 shadow-xs flex items-center justify-between">
+            <div>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#78756F]">
+                Casual Leave Balance
+              </span>
+              <p className="text-2xl font-extrabold text-[#71806B] mt-1">{balances.casual} days</p>
+            </div>
+            <CalendarDays className="w-6 h-6 text-[#71806B]/40" />
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-[#FFFDF9] border border-[#D8D4CC] rounded-xl p-4 shadow-xs">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#78756F]">
+              Pending Approvals
+            </span>
+            <p className="text-2xl font-extrabold text-[#C99A52] mt-1">{pendingLeaves.length}</p>
+            <span className="text-[10px] text-[#78756F]">Awaiting review</span>
+          </div>
+
+          <div className="bg-[#FFFDF9] border border-[#D8D4CC] rounded-xl p-4 shadow-xs">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#78756F]">
+              Approved Requests
+            </span>
+            <p className="text-2xl font-extrabold text-[#46513F] mt-1">
+              {allLeaves.filter((l) => (l.status || '').toUpperCase() === 'APPROVED').length}
+            </p>
+            <span className="text-[10px] text-[#71806B]">Organization-wide</span>
+          </div>
+
+          <div className="bg-[#FFFDF9] border border-[#D8D4CC] rounded-xl p-4 shadow-xs">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#78756F]">
+              Total Days Approved
+            </span>
+            <p className="text-2xl font-extrabold text-[#71806B] mt-1">
+              {allLeaves
+                .filter((l) => (l.status || '').toUpperCase() === 'APPROVED')
+                .reduce((sum, l) => sum + (l.days_count ?? l.total_days ?? 0), 0)}{' '}
+              <span className="text-xs font-normal text-[#78756F]">days</span>
+            </p>
+            <span className="text-[10px] text-[#78756F]">Cumulative time off</span>
+          </div>
+
+          <div className="bg-[#FFFDF9] border border-[#D8D4CC] rounded-xl p-4 shadow-xs">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#78756F]">
+              My Annual Balance
+            </span>
+            <p className="text-2xl font-extrabold text-[#242321] mt-1">
+              {balances.annual}{' '}
+              <span className="text-xs font-normal text-[#78756F]">days</span>
+            </p>
+            <span className="text-[10px] text-[#78756F]">Personal quota</span>
+          </div>
+        </div>
+      )}
 
       {/* Pending Approvals Table (Manager / HR only) */}
       {role !== 'EMPLOYEE' && (
@@ -299,7 +369,7 @@ export const LeavePage: React.FC = () => {
 
       {/* Main Leave Records Table */}
       <div className="bg-[#FFFDF9] border border-[#D8D4CC] rounded-xl shadow-xs overflow-hidden">
-        <div className="p-4 border-b border-[#D8D4CC] bg-[#F7F5F0]/60 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="p-4 border-b border-[#D8D4CC] bg-[#F7F5F0]/60 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div>
             <h3 className="text-sm font-bold text-[#242321]">
               {role === 'EMPLOYEE'
@@ -311,30 +381,55 @@ export const LeavePage: React.FC = () => {
             <p className="text-[11px] text-[#78756F]">Comprehensive log of submitted leaves and outcomes</p>
           </div>
 
-          {role !== 'EMPLOYEE' && (
-            <div className="flex items-center gap-1 bg-[#EAE6DE]/60 p-1 rounded-lg">
-              <button
-                onClick={() => setRecordsTab('all')}
-                className={`px-3 py-1 text-xs font-semibold rounded-md transition-all cursor-pointer ${
-                  recordsTab === 'all'
-                    ? 'bg-[#FFFDF9] text-[#242321] shadow-xs'
-                    : 'text-[#78756F] hover:text-[#242321]'
-                }`}
-              >
-                All Organization ({allLeaves.length})
-              </button>
-              <button
-                onClick={() => setRecordsTab('my')}
-                className={`px-3 py-1 text-xs font-semibold rounded-md transition-all cursor-pointer ${
-                  recordsTab === 'my'
-                    ? 'bg-[#FFFDF9] text-[#242321] shadow-xs'
-                    : 'text-[#78756F] hover:text-[#242321]'
-                }`}
-              >
-                My Requests ({myLeaves.length})
-              </button>
+          <div className="flex flex-wrap items-center gap-2">
+            {role !== 'EMPLOYEE' && (
+              <div className="flex items-center gap-1 bg-[#EAE6DE]/60 p-1 rounded-lg">
+                <button
+                  onClick={() => setRecordsTab('all')}
+                  className={`px-3 py-1 text-xs font-semibold rounded-md transition-all cursor-pointer ${
+                    recordsTab === 'all'
+                      ? 'bg-[#FFFDF9] text-[#242321] shadow-xs'
+                      : 'text-[#78756F] hover:text-[#242321]'
+                  }`}
+                >
+                  All Organization ({allLeaves.length})
+                </button>
+                <button
+                  onClick={() => setRecordsTab('my')}
+                  className={`px-3 py-1 text-xs font-semibold rounded-md transition-all cursor-pointer ${
+                    recordsTab === 'my'
+                      ? 'bg-[#FFFDF9] text-[#242321] shadow-xs'
+                      : 'text-[#78756F] hover:text-[#242321]'
+                  }`}
+                >
+                  My Requests ({myLeaves.length})
+                </button>
+              </div>
+            )}
+
+            <div className="relative">
+              <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-[#78756F]" />
+              <input
+                type="text"
+                placeholder="Search leaves..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-8 pr-3 py-1 text-xs bg-[#FFFDF9] border border-[#D8D4CC] rounded-lg outline-none w-36 sm:w-44"
+              />
             </div>
-          )}
+
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-2 py-1 text-xs bg-[#FFFDF9] border border-[#D8D4CC] rounded-lg text-[#242321] outline-none"
+            >
+              <option value="ALL">All Status</option>
+              <option value="PENDING">Pending</option>
+              <option value="APPROVED">Approved</option>
+              <option value="REJECTED">Rejected</option>
+              <option value="CANCELLED">Cancelled</option>
+            </select>
+          </div>
         </div>
 
         <div className="overflow-x-auto">
@@ -358,14 +453,33 @@ export const LeavePage: React.FC = () => {
                     Loading leave records...
                   </td>
                 </tr>
-              ) : (role === 'EMPLOYEE' || recordsTab === 'my' ? myLeaves : allLeaves).length === 0 ? (
-                <tr>
-                  <td colSpan={8} className="py-8 text-center text-[#78756F]">
-                    No leave records found.
-                  </td>
-                </tr>
-              ) : (
-                (role === 'EMPLOYEE' || recordsTab === 'my' ? myLeaves : allLeaves).map((req) => {
+              ) : (() => {
+                const targetList = role === 'EMPLOYEE' || recordsTab === 'my' ? myLeaves : allLeaves;
+                const filtered = targetList.filter((req) => {
+                  const matchSearch =
+                    !searchTerm.trim() ||
+                    (req.employee_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    (req.employee_id || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    (req.reason || '').toLowerCase().includes(searchTerm.toLowerCase());
+                  const matchStatus =
+                    statusFilter === 'ALL' ||
+                    (req.status || '').toUpperCase() === statusFilter;
+                  return matchSearch && matchStatus;
+                });
+
+                if (filtered.length === 0) {
+                  return (
+                    <tr>
+                      <td colSpan={8} className="py-8 text-center text-[#78756F]">
+                        {searchTerm || statusFilter !== 'ALL'
+                          ? 'No leave records match the selected filters.'
+                          : 'No leave records found.'}
+                      </td>
+                    </tr>
+                  );
+                }
+
+                return filtered.map((req) => {
                   const reqId = req.leave_id || req.request_id || '';
                   const days = req.days_count ?? req.total_days ?? 0;
                   const statusUpper = (req.status || '').toUpperCase();
@@ -411,8 +525,8 @@ export const LeavePage: React.FC = () => {
                       )}
                     </tr>
                   );
-                })
-              )}
+                });
+              })()}
             </tbody>
           </table>
         </div>

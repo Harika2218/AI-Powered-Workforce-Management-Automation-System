@@ -7,6 +7,7 @@ router = APIRouter(prefix="/shifts", tags=["Shift Management"])
 
 
 @router.get("", response_model=list[ShiftResponse], summary="List All Shift Definitions")
+@router.get("/definitions", response_model=list[ShiftResponse], summary="List All Shift Definitions (Alias)")
 def list_shifts(current_user: dict = Depends(get_current_user)):
     """
     List available shift definitions (Morning, General, Evening, Night).
@@ -31,6 +32,7 @@ def update_shift(shift_id: str, payload: ShiftUpdate, current_user: dict = Depen
 
 
 @router.post("/assign", summary="Assign Shift to Employee")
+@router.post("/assignments", summary="Assign Shift to Employee (Alias)")
 def assign_shift(payload: ShiftAssign, current_user: dict = Depends(require_manager_or_hr)):
     """
     Assign a shift to an employee (Manager for team, HR for anyone).
@@ -47,8 +49,10 @@ def get_my_shift(current_user: dict = Depends(get_current_user)):
 
 
 @router.get("/team", summary="Team Shift Schedule")
+@router.get("/assignments", summary="Shift Assignments Schedule")
+@router.get("/roster", summary="Shift Roster Schedule")
 def get_team_shifts(current_user: dict = Depends(require_manager_or_hr)):
     """
-    View shift assignments for team members (Manager / HR).
+    View shift assignments for team members (Manager) or whole organization (HR).
     """
     return ShiftService.get_team_shifts(current_user)

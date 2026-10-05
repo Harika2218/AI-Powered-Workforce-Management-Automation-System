@@ -115,15 +115,21 @@ class ShiftService:
     @staticmethod
     def get_team_shifts(current_user: dict) -> list[dict]:
         db = get_db()
+        role = current_user.get("role")
         user_emp_id = current_user.get("employee_id")
-        team_ids = get_manager_team_ids(user_emp_id)
 
         shifts_cache = {s["shift_id"]: serialize_doc(s) for s in db["shifts"].find({})}
-        cursor = db["employees"].find({"employee_id": {"$in": team_ids + [user_emp_id]}})
+        default_shift = shifts_cache.get("SHIFT-GEN") or next(iter(shifts_cache.values()), None)
+
+        if role == "HR":
+            cursor = db["employees"].find({})
+        else:
+            team_ids = get_manager_team_ids(user_emp_id)
+            cursor = db["employees"].find({"employee_id": {"$in": team_ids + [user_emp_id]}})
 
         result = []
         for emp in cursor:
-            sh = shifts_cache.get(emp.get("shift_id"))
+            sh = shifts_cache.get(emp.get("shift_id")) or default_shift
             result.append({
                 "employee_id": emp["employee_id"],
                 "employee_name": emp["full_name"],

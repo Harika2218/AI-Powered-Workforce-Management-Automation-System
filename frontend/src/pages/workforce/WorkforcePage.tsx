@@ -28,6 +28,7 @@ export const WorkforcePage: React.FC = () => {
   const [department, setDepartment] = useState('');
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Modals
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
@@ -55,6 +56,7 @@ export const WorkforcePage: React.FC = () => {
   const fetchEmployees = async () => {
     try {
       setLoading(true);
+      setError(null);
       const res = await employeesApi.getEmployees({
         search: search.trim() || undefined,
         department: department || undefined,
@@ -65,8 +67,9 @@ export const WorkforcePage: React.FC = () => {
       setEmployees(res.items || []);
       setTotal(res.total || 0);
       setTotalPages(res.total_pages || 1);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error fetching employees:', err);
+      setError('Unable to load employee workforce directory from database.');
     } finally {
       setLoading(false);
     }
@@ -167,6 +170,18 @@ export const WorkforcePage: React.FC = () => {
           </button>
         )}
       </div>
+
+      {error && (
+        <div className="p-4 rounded-xl bg-[#C8755A]/10 border border-[#C8755A]/30 flex items-center justify-between text-xs text-[#C8755A]">
+          <span>{error}</span>
+          <button
+            onClick={fetchEmployees}
+            className="px-3 py-1 bg-[#46513F] text-white text-xs font-bold rounded-lg hover:bg-[#46513F]/90 cursor-pointer"
+          >
+            Retry
+          </button>
+        </div>
+      )}
 
       {/* Flash message */}
       {notificationMsg && (

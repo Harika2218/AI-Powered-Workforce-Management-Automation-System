@@ -8,15 +8,18 @@ export const NotificationsPage: React.FC = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [unreadOnly, setUnreadOnly] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchNotifications = async () => {
     try {
       setLoading(true);
+      setError(null);
       const data = await notificationsApi.getNotifications(unreadOnly, 50);
       setNotifications(data.items || []);
       setUnreadCount(data.unread_count || 0);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to load notifications:', err);
+      setError('Unable to load notification feed from server.');
     } finally {
       setLoading(false);
     }
@@ -72,6 +75,18 @@ export const NotificationsPage: React.FC = () => {
           )}
         </div>
       </div>
+
+      {error && (
+        <div className="p-4 rounded-xl bg-[#C8755A]/10 border border-[#C8755A]/30 flex items-center justify-between text-xs text-[#C8755A]">
+          <span>{error}</span>
+          <button
+            onClick={fetchNotifications}
+            className="px-3 py-1 bg-[#46513F] text-white text-xs font-bold rounded-lg hover:bg-[#46513F]/90 cursor-pointer"
+          >
+            Retry
+          </button>
+        </div>
+      )}
 
       {/* Filter bar */}
       <div className="flex items-center justify-between border-b border-[#D8D4CC] pb-3 text-xs">
