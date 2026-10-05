@@ -224,7 +224,12 @@ class PerformanceService:
         ]
         dept_res = list(db["performance"].aggregate(dept_pipeline))
         department_averages = [
-            {"department": d["_id"], "avg_score": round(d["avg_score"], 2), "count": d["count"]}
+            {
+                "department": d["_id"],
+                "avg_score": round(d["avg_score"], 2),
+                "average_score": round(d["avg_score"], 2),
+                "count": d["count"],
+            }
             for d in dept_res
         ]
 

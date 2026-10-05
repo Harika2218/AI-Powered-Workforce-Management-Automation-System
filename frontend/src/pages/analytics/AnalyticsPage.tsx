@@ -132,7 +132,7 @@ export const AnalyticsPage: React.FC = () => {
                 <p className="text-[11px] text-[#78756F] mb-4">Total active headcount per division</p>
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={workforceData.department_breakdown || []}>
+                    <BarChart data={workforceData.department_distribution || workforceData.department_breakdown || []}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#D8D4CC" opacity={0.5} />
                       <XAxis dataKey="department" tick={{ fontSize: 10, fill: '#78756F' }} angle={-20} textAnchor="end" />
                       <YAxis tick={{ fontSize: 10, fill: '#78756F' }} />
@@ -204,7 +204,7 @@ export const AnalyticsPage: React.FC = () => {
                 <p className="text-[11px] text-[#78756F] mb-4">Time-series daily volume over past period</p>
                 <div className="h-72">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={attendanceData.daily_trend || []}>
+                    <LineChart data={attendanceData.daily_trends || attendanceData.daily_trend || []}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#D8D4CC" opacity={0.5} />
                       <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#78756F' }} />
                       <YAxis tick={{ fontSize: 10, fill: '#78756F' }} />
@@ -230,7 +230,13 @@ export const AnalyticsPage: React.FC = () => {
                 <p className="text-[11px] text-[#78756F] mb-4">Volume comparison across categories</p>
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={leaveData.type_breakdown || []}>
+                    <BarChart
+                      data={(leaveData.leave_type_distribution || leaveData.type_breakdown || []).map((item: any) => ({
+                        ...item,
+                        type: item.type || item.leave_type || 'Other',
+                        count: item.count || 0,
+                      }))}
+                    >
                       <CartesianGrid strokeDasharray="3 3" stroke="#D8D4CC" opacity={0.5} />
                       <XAxis dataKey="type" tick={{ fontSize: 11, fill: '#78756F' }} />
                       <YAxis tick={{ fontSize: 10, fill: '#78756F' }} />
@@ -248,7 +254,14 @@ export const AnalyticsPage: React.FC = () => {
                 <p className="text-[11px] text-[#78756F] mb-4">Total days off taken per team</p>
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart layout="vertical" data={leaveData.department_leave_days || []}>
+                    <BarChart
+                      layout="vertical"
+                      data={(leaveData.department_leave_days || leaveData.department_leave_breakdown || []).map((item: any) => ({
+                        ...item,
+                        department: item.department,
+                        total_days: item.total_days ?? item.total_requests ?? 0,
+                      }))}
+                    >
                       <CartesianGrid strokeDasharray="3 3" stroke="#D8D4CC" opacity={0.5} />
                       <XAxis type="number" tick={{ fontSize: 10, fill: '#78756F' }} />
                       <YAxis dataKey="department" type="category" tick={{ fontSize: 10, fill: '#78756F' }} />
@@ -270,7 +283,14 @@ export const AnalyticsPage: React.FC = () => {
               <p className="text-[11px] text-[#78756F] mb-4">Comparative breakdown of accumulated overtime hours</p>
               <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={overtimeData.department_overtime || []} margin={{ bottom: 25 }}>
+                  <BarChart
+                    data={(overtimeData.department_overtime || []).map((item: any) => ({
+                      ...item,
+                      department: item.department,
+                      total_overtime_hours: item.total_overtime_hours ?? item.overtime_hours ?? 0,
+                    }))}
+                    margin={{ bottom: 25 }}
+                  >
                     <CartesianGrid strokeDasharray="3 3" stroke="#D8D4CC" opacity={0.5} />
                     <XAxis dataKey="department" tick={{ fontSize: 10, fill: '#78756F' }} angle={-25} textAnchor="end" />
                     <YAxis tick={{ fontSize: 10, fill: '#78756F' }} />
@@ -291,7 +311,15 @@ export const AnalyticsPage: React.FC = () => {
               <p className="text-[11px] text-[#78756F] mb-4">Calculated average quarterly rating across all business units</p>
               <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart layout="vertical" data={performanceData.department_averages || []} margin={{ left: 30 }}>
+                  <BarChart
+                    layout="vertical"
+                    data={(performanceData.department_averages || []).map((item: any) => ({
+                      ...item,
+                      department: item.department,
+                      average_score: item.average_score ?? item.avg_score ?? 0,
+                    }))}
+                    margin={{ left: 30 }}
+                  >
                     <CartesianGrid strokeDasharray="3 3" stroke="#D8D4CC" opacity={0.5} />
                     <XAxis type="number" domain={[0, 5]} tick={{ fontSize: 10, fill: '#78756F' }} />
                     <YAxis dataKey="department" type="category" tick={{ fontSize: 10, fill: '#78756F' }} />

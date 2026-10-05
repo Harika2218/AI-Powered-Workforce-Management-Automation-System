@@ -14,6 +14,7 @@ class AttendanceAnalyticsResponse(BaseModel):
     total_overtime_hours: float
     department_attendance: list[dict[str, Any]]
     daily_trends: list[dict[str, Any]]
+    daily_trend: list[dict[str, Any]] | None = None
 
 
 class LeaveAnalyticsResponse(BaseModel):
@@ -23,8 +24,10 @@ class LeaveAnalyticsResponse(BaseModel):
     rejected_count: int
     cancelled_count: int
     leave_type_distribution: list[dict[str, Any]]
+    type_breakdown: list[dict[str, Any]] | None = None
     monthly_leave_trends: list[dict[str, Any]]
     department_leave_breakdown: list[dict[str, Any]]
+    department_leave_days: list[dict[str, Any]] | None = None
 
 
 class WorkforceAnalyticsResponse(BaseModel):
@@ -33,6 +36,7 @@ class WorkforceAnalyticsResponse(BaseModel):
     inactive_employees: int
     on_leave_employees: int
     department_distribution: list[dict[str, Any]]
+    department_breakdown: list[dict[str, Any]] | None = None
     employment_type_distribution: list[dict[str, Any]]
     tenure_distribution: list[dict[str, Any]]
     top_skills: list[dict[str, Any]]

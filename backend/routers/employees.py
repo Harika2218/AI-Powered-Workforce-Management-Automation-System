@@ -26,7 +26,7 @@ def get_employees(
     department: str | None = Query(None, description="Filter by department"),
     status: str | None = Query(None, alias="status", description="Filter by employment status (Active/Inactive/On Leave)"),
     page: int = Query(1, ge=1),
-    page_size: int = Query(20, ge=1, le=100),
+    page_size: int = Query(20, ge=1, le=250),
     sort_by: str = Query("employee_id"),
     sort_order: str = Query("asc", pattern="^(asc|desc)$"),
     current_user: dict = Depends(get_current_user),

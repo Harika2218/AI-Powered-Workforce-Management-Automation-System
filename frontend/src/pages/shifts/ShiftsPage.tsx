@@ -53,15 +53,23 @@ export const ShiftsPage: React.FC = () => {
       setShifts(shiftDefs || []);
 
       if (role === 'EMPLOYEE') {
-        const s = await shiftsApi.getMyShift();
-        setMyShift(s);
+        try {
+          const s = await shiftsApi.getMyShift();
+          setMyShift(s);
+        } catch (e: any) {
+          if (e.response?.status === 404) {
+            setMyShift(null);
+          } else {
+            throw e;
+          }
+        }
       } else {
         const [t, emps] = await Promise.all([
           shiftsApi.getTeamShifts(),
-          employeesApi.getEmployees({ page_size: 200 }),
+          employeesApi.getEmployees({ page_size: 100 }),
         ]);
         setTeamShifts(t || []);
-        setEmployeesList(emps.items || []);
+        setEmployeesList(emps?.items || []);
       }
     } catch (err: any) {
       console.error('Failed to load shifts:', err);

@@ -378,6 +378,7 @@ class AnalyticsService:
             total_overtime_hours=tot_ot,
             department_attendance=department_attendance,
             daily_trends=daily_trends,
+            daily_trend=daily_trends,
         )
 
     @staticmethod
@@ -393,7 +394,10 @@ class AnalyticsService:
         type_agg = list(db["leave_requests"].aggregate([
             {"$group": {"_id": "$leave_type", "count": {"$sum": 1}, "total_days": {"$sum": "$total_days"}}},
         ]))
-        type_dist = [{"leave_type": t["_id"], "count": t["count"], "total_days": t["total_days"]} for t in type_agg]
+        type_dist = [
+            {"leave_type": t["_id"], "type": str(t["_id"]), "count": t["count"], "total_days": t["total_days"]}
+            for t in type_agg
+        ]
 
         # Monthly trends
         monthly_agg = list(db["leave_requests"].aggregate([
@@ -407,10 +411,25 @@ class AnalyticsService:
         dept_leave_agg = list(db["leave_requests"].aggregate([
             {"$lookup": {"from": "employees", "localField": "employee_id", "foreignField": "employee_id", "as": "emp"}},
             {"$unwind": "$emp"},
-            {"$group": {"_id": "$emp.department", "total_requests": {"$sum": 1}, "approved_requests": {"$sum": {"$cond": [{"$eq": ["$status", "Approved"]}, 1, 0]}}}},
-            {"$sort": {"total_requests": -1}},
+            {
+                "$group": {
+                    "_id": "$emp.department",
+                    "total_requests": {"$sum": 1},
+                    "approved_requests": {"$sum": {"$cond": [{"$eq": ["$status", "Approved"]}, 1, 0]}},
+                    "total_days": {"$sum": "$total_days"},
+                }
+            },
+            {"$sort": {"total_days": -1}},
         ]))
-        dept_breakdown = [{"department": d["_id"], "total_requests": d["total_requests"], "approved_requests": d["approved_requests"]} for d in dept_leave_agg]
+        dept_breakdown = [
+            {
+                "department": d["_id"],
+                "total_requests": d["total_requests"],
+                "approved_requests": d["approved_requests"],
+                "total_days": d.get("total_days", 0),
+            }
+            for d in dept_leave_agg
+        ]
 
         return LeaveAnalyticsResponse(
             total_requests=total,
@@ -419,8 +438,10 @@ class AnalyticsService:
             rejected_count=rejected,
             cancelled_count=cancelled,
             leave_type_distribution=type_dist,
+            type_breakdown=type_dist,
             monthly_leave_trends=monthly_trends,
             department_leave_breakdown=dept_breakdown,
+            department_leave_days=dept_breakdown,
         )
 
     @staticmethod
@@ -475,6 +496,7 @@ class AnalyticsService:
             inactive_employees=inactive,
             on_leave_employees=on_leave,
             department_distribution=dept_dist,
+            department_breakdown=dept_dist,
             employment_type_distribution=emp_type_dist,
             tenure_distribution=tenure_list,
             top_skills=top_skills,
@@ -500,7 +522,14 @@ class AnalyticsService:
             {"$sort": {"total_overtime": -1}},
         ]
         dept_ot_res = list(db["attendance"].aggregate(dept_ot_pipeline))
-        dept_ot = [{"department": d["_id"], "overtime_hours": round(d["total_overtime"], 2)} for d in dept_ot_res]
+        dept_ot = [
+            {
+                "department": d["_id"],
+                "overtime_hours": round(d["total_overtime"], 2),
+                "total_overtime_hours": round(d["total_overtime"], 2),
+            }
+            for d in dept_ot_res
+        ]
 
         # Top overtime employees
         top_emp_pipeline = [
