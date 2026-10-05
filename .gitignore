@@ -5,6 +5,8 @@
 frontend/.env
 frontend/.env.*
 !frontend/.env.example
+!frontend/.env.production
+!frontend/.env.development
 
 # Python cache & build artifacts
 __pycache__/
