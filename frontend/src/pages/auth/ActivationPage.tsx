@@ -40,6 +40,10 @@ export const ActivationPage: React.FC = () => {
       setSuccess(true);
     } catch (err: any) {
       console.error('Activation error:', err);
+      if (!err.response) {
+        setError('Cannot connect to backend server. Please verify your backend API is reachable.');
+        return;
+      }
       const detail = err.response?.data?.detail;
       setError(
         typeof detail === 'string'

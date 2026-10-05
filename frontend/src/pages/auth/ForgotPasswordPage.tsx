@@ -28,7 +28,11 @@ export const ForgotPasswordPage: React.FC = () => {
       setStep('reset');
     } catch (err: any) {
       console.error('Forgot password error:', err);
-      setError(err.response?.data?.detail || 'Unable to process reset request. Please check the email.');
+      if (!err.response) {
+        setError('Cannot connect to backend server. Please verify your backend API is reachable.');
+      } else {
+        setError(err.response?.data?.detail || 'Unable to process reset request. Please check the email.');
+      }
     } finally {
       setLoading(false);
     }
@@ -58,7 +62,11 @@ export const ForgotPasswordPage: React.FC = () => {
       setStep('completed');
     } catch (err: any) {
       console.error('Password reset error:', err);
-      setError(err.response?.data?.detail || 'Reset failed. Token may be invalid or expired.');
+      if (!err.response) {
+        setError('Cannot connect to backend server. Please verify your backend API is reachable.');
+      } else {
+        setError(err.response?.data?.detail || 'Reset failed. Token may be invalid or expired.');
+      }
     } finally {
       setLoading(false);
     }
