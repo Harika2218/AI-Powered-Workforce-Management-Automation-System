@@ -14,14 +14,15 @@ def get_client() -> MongoClient:
     global _client
     if _client is None:
         settings = get_settings()
+        url = settings.MONGODB_URL.strip()
         client_kwargs = {
             "serverSelectionTimeoutMS": 5000,
             "connectTimeoutMS": 5000,
         }
-        if "mongodb+srv" in settings.MONGODB_URL or "ssl=true" in settings.MONGODB_URL.lower():
+        if "mongodb+srv" in url or "ssl=true" in url.lower():
             client_kwargs["tlsCAFile"] = certifi.where()
         _client = MongoClient(
-            settings.MONGODB_URL,
+            url,
             **client_kwargs,
         )
     return _client
@@ -32,7 +33,7 @@ def get_db() -> Database:
     if _db is None:
         settings = get_settings()
         client = get_client()
-        _db = client[settings.DATABASE_NAME]
+        _db = client[settings.DATABASE_NAME.strip()]
     return _db
 
 
