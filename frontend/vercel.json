@@ -1,23 +1,9 @@
 {
   "rewrites": [
-    { "source": "/auth/:path*", "destination": "https://tender-panda-50.loca.lt/auth/:path*" },
-    { "source": "/employees/:path*", "destination": "https://tender-panda-50.loca.lt/employees/:path*" },
-    { "source": "/attendance/:path*", "destination": "https://tender-panda-50.loca.lt/attendance/:path*" },
-    { "source": "/leave/:path*", "destination": "https://tender-panda-50.loca.lt/leave/:path*" },
-    { "source": "/shifts/:path*", "destination": "https://tender-panda-50.loca.lt/shifts/:path*" },
-    { "source": "/timesheets/:path*", "destination": "https://tender-panda-50.loca.lt/timesheets/:path*" },
-    { "source": "/payroll/:path*", "destination": "https://tender-panda-50.loca.lt/payroll/:path*" },
-    { "source": "/performance/:path*", "destination": "https://tender-panda-50.loca.lt/performance/:path*" },
-    { "source": "/dashboards/:path*", "destination": "https://tender-panda-50.loca.lt/dashboards/:path*" },
-    { "source": "/analytics/:path*", "destination": "https://tender-panda-50.loca.lt/analytics/:path*" },
-    { "source": "/notifications/:path*", "destination": "https://tender-panda-50.loca.lt/notifications/:path*" },
-    { "source": "/audit-logs/:path*", "destination": "https://tender-panda-50.loca.lt/audit-logs/:path*" },
-    { "source": "/ai/:path*", "destination": "https://tender-panda-50.loca.lt/ai/:path*" },
-    { "source": "/users/:path*", "destination": "https://tender-panda-50.loca.lt/users/:path*" },
-    { "source": "/health", "destination": "https://tender-panda-50.loca.lt/health" },
     {
       "source": "/(.*)",
       "destination": "/index.html"
     }
   ]
 }
+

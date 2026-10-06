@@ -1,4 +1,5 @@
 import logging
+import certifi
 from pymongo import MongoClient, ASCENDING, IndexModel
 from pymongo.database import Database
 from backend.config import get_settings
@@ -13,10 +14,15 @@ def get_client() -> MongoClient:
     global _client
     if _client is None:
         settings = get_settings()
+        client_kwargs = {
+            "serverSelectionTimeoutMS": 5000,
+            "connectTimeoutMS": 5000,
+        }
+        if "mongodb+srv" in settings.MONGODB_URL or "ssl=true" in settings.MONGODB_URL.lower():
+            client_kwargs["tlsCAFile"] = certifi.where()
         _client = MongoClient(
             settings.MONGODB_URL,
-            serverSelectionTimeoutMS=5000,
-            connectTimeoutMS=5000,
+            **client_kwargs,
         )
     return _client
 
