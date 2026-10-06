@@ -2,7 +2,16 @@ import axios from 'axios';
 
 export const resolveApiBaseUrl = (): string => {
   const envUrl = import.meta.env.VITE_API_URL;
-  // Use the environment variable if set, otherwise default to localhost for development
+  if (
+    typeof window !== 'undefined' &&
+    window.location.hostname !== 'localhost' &&
+    window.location.hostname !== '127.0.0.1'
+  ) {
+    if (envUrl && !envUrl.includes('loca.lt') && !envUrl.includes('localhost') && !envUrl.includes('127.0.0.1')) {
+      return envUrl;
+    }
+    return 'https://ai-powered-workforce-management.onrender.com';
+  }
   return envUrl || 'http://localhost:8000';
 };
 
@@ -21,6 +30,15 @@ export const apiClient = axios.create({
 // Request interceptor to attach JWT token
 apiClient.interceptors.request.use(
   (config) => {
+    if (
+      typeof window !== 'undefined' &&
+      window.location.hostname !== 'localhost' &&
+      window.location.hostname !== '127.0.0.1'
+    ) {
+      if (!config.baseURL || config.baseURL.includes('loca.lt') || config.baseURL.includes('localhost') || config.baseURL.includes('127.0.0.1')) {
+        config.baseURL = 'https://ai-powered-workforce-management.onrender.com';
+      }
+    }
     const token = localStorage.getItem('token');
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
