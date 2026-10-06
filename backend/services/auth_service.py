@@ -22,69 +22,77 @@ from backend.schemas.auth import (
 class AuthService:
     @staticmethod
     def login(req: LoginRequest) -> TokenResponse:
-        db = get_db()
-        email_clean = req.email.lower().strip()
-        user = db["users"].find_one({"email": email_clean})
+        try:
+            db = get_db()
+            email_clean = req.email.lower().strip()
+            user = db["users"].find_one({"email": email_clean})
 
-        if not user:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid email or password",
-                headers={"WWW-Authenticate": "Bearer"},
+            if not user:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid email or password",
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+
+            if user.get("status") == "deactivated":
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Account is deactivated. Please contact your HR administrator.",
+                )
+
+            if user.get("status") == "invited" or not user.get("password_hash"):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Account has not been activated yet. Please activate your account first.",
+                )
+
+            if not verify_password(req.password, user["password_hash"]):
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid email or password",
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+
+            emp_doc = None
+            if user.get("employee_id"):
+                emp_doc = db["employees"].find_one({"employee_id": user["employee_id"]})
+
+            full_name = emp_doc.get("full_name") if emp_doc else user.get("email")
+
+            # Generate JWT token
+            token_payload = {
+                "sub": user["email"],
+                "role": user["role"],
+                "user_id": user["user_id"],
+                "employee_id": user.get("employee_id"),
+            }
+            access_token = create_access_token(token_payload)
+
+            # Log audit
+            log_audit(
+                user_id=user["user_id"],
+                action="USER_LOGIN",
+                entity_type="USER",
+                entity_id=user["user_id"],
+                metadata={"email": user["email"], "role": user["role"]},
             )
 
-        if user.get("status") == "deactivated":
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Account is deactivated. Please contact your HR administrator.",
+            return TokenResponse(
+                access_token=access_token,
+                token_type="bearer",
+                role=user["role"],
+                employee_id=user.get("employee_id"),
+                email=user["email"],
+                full_name=full_name,
+                first_login=user.get("first_login", False),
             )
-
-        if user.get("status") == "invited" or not user.get("password_hash"):
+        except HTTPException:
+            raise
+        except Exception as e:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Account has not been activated yet. Please activate your account first.",
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Login error: {str(e)}"
             )
-
-        if not verify_password(req.password, user["password_hash"]):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid email or password",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-
-        emp_doc = None
-        if user.get("employee_id"):
-            emp_doc = db["employees"].find_one({"employee_id": user["employee_id"]})
-
-        full_name = emp_doc.get("full_name") if emp_doc else user.get("email")
-
-        # Generate JWT token
-        token_payload = {
-            "sub": user["email"],
-            "role": user["role"],
-            "user_id": user["user_id"],
-            "employee_id": user.get("employee_id"),
-        }
-        access_token = create_access_token(token_payload)
-
-        # Log audit
-        log_audit(
-            user_id=user["user_id"],
-            action="USER_LOGIN",
-            entity_type="USER",
-            entity_id=user["user_id"],
-            metadata={"email": user["email"], "role": user["role"]},
-        )
-
-        return TokenResponse(
-            access_token=access_token,
-            token_type="bearer",
-            role=user["role"],
-            employee_id=user.get("employee_id"),
-            email=user["email"],
-            full_name=full_name,
-            first_login=user.get("first_login", False),
-        )
 
     @staticmethod
     def activate_account(req: ActivationRequest) -> dict:
