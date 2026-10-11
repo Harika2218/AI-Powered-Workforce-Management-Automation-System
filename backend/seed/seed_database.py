@@ -513,18 +513,67 @@ def seed_database(reset: bool = True) -> None:
             ts_id = f"TS-{ts_counter:06d}"
             ts_counter += 1
             st = "Approved" if day_offset > 3 else "Submitted"
+            dept = emp["department"]
+            sample_tasks = {
+                "Human Resources": [
+                    ("Attendance Validation", "08:45 AM - Morning HR standup & attendance sync", "Reviewing and validating employee attendance records and exceptions"),
+                    ("Workforce Reporting", "09:00 AM - Workforce analytics planning", "Preparing a department-level workforce report and headcount summary"),
+                    ("Onboarding Documentation", "09:15 AM - New hire onboarding review", "Updating employee onboarding documentation and compliance forms"),
+                    ("Leave Request Review", "09:00 AM - Leave portal queue triage", "Reviewing pending leave requests and statutory balance audits"),
+                ],
+                "Engineering": [
+                    ("API Endpoint Testing", "09:00 AM - Engineering daily standup & sprint review", "Testing an API endpoint and validating response payloads against schema"),
+                    ("Database Query Optimization", "09:15 AM - Architecture & indexing sync", "Analysing database query latency and optimizing MongoDB aggregation pipelines"),
+                    ("Microservice Integration", "09:00 AM - Service interface review", "Integrating authentication middleware and token verification logic"),
+                    ("Sprint Deliverables", "09:00 AM - Sprint backlog review", "Refactoring database migration scripts and implementing data models"),
+                ],
+                "Data Science": [
+                    ("Attendance Trend Analysis", "09:00 AM - Analytics standup & metric check", "Analysing attendance trends and training forecasting models for shift optimization"),
+                    ("Predictive Modeling", "09:30 AM - Algorithm design session", "Evaluating feature importance weights for employee attrition predictions"),
+                ],
+                "Finance": [
+                    ("Payroll Reconciliation", "08:45 AM - Financial operations sync", "Reconciling monthly payroll tax withholdings and net disbursements"),
+                    ("Overtime Expense Audit", "09:00 AM - Compensation audit queue", "Auditing overtime compensation expenses across high-utilization departments"),
+                ],
+                "Marketing": [
+                    ("Recruitment Campaign Analysis", "09:00 AM - Campaign performance standup", "Analyzing employer branding metrics and applicant conversion funnels"),
+                    ("Workforce Communication", "09:30 AM - Internal communications review", "Drafting monthly organizational workforce updates and announcements"),
+                ],
+                "Operations": [
+                    ("Shift Coverage Validation", "08:30 AM - Shift roster inspection", "Validating shift coverage and emergency staffing allocations for operational continuity"),
+                    ("Timesheet Submission Audit", "09:00 AM - Timesheet queue review", "Validating timesheet submissions and overtime logs across operations teams"),
+                ],
+                "Sales": [
+                    ("Enterprise Client Demos", "09:00 AM - Sales team pipeline briefing", "Conducting enterprise software product demonstrations for prospective partners"),
+                    ("CRM Data Synchronization", "09:30 AM - Pipeline data review", "Updating customer relationship management milestones and contract progress"),
+                ],
+                "IT": [
+                    ("Infrastructure Security Audit", "08:30 AM - Server security audit & patch review", "Configuring network security certificates and firewall rules"),
+                    ("Support Ticket Resolution", "09:00 AM - IT service desk triage", "Resolving internal hardware and software provisioning tickets for staff"),
+                ],
+            }
+            acts = sample_tasks.get(dept, sample_tasks["Operations"])
+            task_name, start_notes, desc = acts[(ts_counter + day_offset) % len(acts)]
+            week_monday = (ts_date - timedelta(days=ts_date.weekday())).isoformat()
+
             timesheets.append({
                 "timesheet_id": ts_id,
                 "employee_id": emp["employee_id"],
                 "date": ts_date_str,
-                "project_name": f"{emp['department']} Core Operations",
-                "task_name": "Sprint deliverables and maintenance",
+                "week_start_date": week_monday,
+                "project_name": f"{dept} Core Operations",
+                "task_name": task_name,
+                "work_start_notes": start_notes,
                 "hours_worked": 8.0,
-                "description": "Completed scheduled technical tasks and team collaboration",
+                "total_hours": 8.0,
+                "description": desc,
+                "notes": desc,
                 "status": st,
                 "approved_by": emp["manager_id"] or "EMP-HR001" if st == "Approved" else None,
                 "reviewed_at": now_iso if st == "Approved" else None,
                 "comments": "Great work" if st == "Approved" else None,
+                "manager_comments": "Great work" if st == "Approved" else None,
+                "created_at": f"{ts_date_str}T08:30:00Z",
             })
     db["timesheets"].insert_many(timesheets)
 
@@ -532,7 +581,7 @@ def seed_database(reset: bool = True) -> None:
     logger.info("Generating payroll records...")
     payroll_records = []
     pay_counter = 1
-    pay_periods = ["2026-08", "2026-09"]
+    pay_periods = ["2026-07", "2026-08", "2026-09"]
     for period in pay_periods:
         for emp in all_employees:
             basic = emp["salary"] / 12.0
@@ -547,7 +596,10 @@ def seed_database(reset: bool = True) -> None:
             payroll_records.append({
                 "payroll_id": f"PAY-{pay_counter:06d}",
                 "employee_id": emp["employee_id"],
+                "employee_name": emp["full_name"],
+                "department": emp["department"],
                 "pay_period": period,
+                "month": period,
                 "basic_salary": round(basic, 2),
                 "allowances": round(allowance, 2),
                 "deductions": deductions,
@@ -556,6 +608,7 @@ def seed_database(reset: bool = True) -> None:
                 "gross_salary": gross,
                 "net_salary": net,
                 "status": "Finalized",
+                "payment_status": "PAID",
                 "processed_at": f"{period}-28T10:00:00Z",
             })
             pay_counter += 1

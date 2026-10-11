@@ -40,6 +40,7 @@ export const TimesheetsPage: React.FC = () => {
   const [wedHours, setWedHours] = useState<number>(8);
   const [thuHours, setThuHours] = useState<number>(8);
   const [friHours, setFriHours] = useState<number>(8);
+  const [workStartNotes, setWorkStartNotes] = useState('');
   const [notes, setNotes] = useState('');
 
   const fetchTimesheets = async () => {
@@ -89,9 +90,12 @@ export const TimesheetsPage: React.FC = () => {
       await timesheetsApi.submitTimesheet({
         week_start_date: weekStart,
         daily_hours: daily,
+        work_start_notes: workStartNotes,
         notes,
       });
       setShowSubmitModal(false);
+      setWorkStartNotes('');
+      setNotes('');
       setNotification({ text: 'Weekly timesheet submitted successfully!', type: 'success' });
       fetchTimesheets();
     } catch (err: any) {
@@ -131,10 +135,10 @@ export const TimesheetsPage: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-[#242321]">
+          <h2 className="text-2xl font-bold tracking-tight text-[#172033]">
             Weekly Timesheets
           </h2>
-          <p className="text-xs text-[#78756F] mt-1">
+          <p className="text-xs text-[#64748B] mt-1">
             {role === 'EMPLOYEE'
               ? 'Log and review weekly operational working hours and manager approvals'
               : 'Review, approve, and verify submitted direct report working hours'}
@@ -143,7 +147,7 @@ export const TimesheetsPage: React.FC = () => {
 
         <button
           onClick={() => setShowSubmitModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-[#46513F] text-white text-xs font-bold rounded-lg hover:bg-[#46513F]/90 transition-colors shadow-xs cursor-pointer"
+          className="flex items-center gap-2 px-4 py-2 bg-[#2563EB] text-white text-xs font-bold rounded-lg hover:bg-[#1D4ED8] transition-colors shadow-sm shadow-blue-500/20 cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>Submit Timesheet</span>
@@ -151,14 +155,14 @@ export const TimesheetsPage: React.FC = () => {
       </div>
 
       {error && (
-        <div className="p-4 rounded-xl bg-[#C8755A]/10 border border-[#C8755A]/30 flex items-center justify-between text-xs text-[#C8755A]">
+        <div className="p-4 rounded-xl bg-red-50 border border-red-200 flex items-center justify-between text-xs text-[#DC2626]">
           <div className="flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
           </div>
           <button
             onClick={fetchTimesheets}
-            className="px-3 py-1 bg-[#46513F] text-white text-xs font-bold rounded-lg hover:bg-[#46513F]/90 cursor-pointer"
+            className="px-3 py-1 bg-[#2563EB] text-white text-xs font-bold rounded-lg hover:bg-[#1D4ED8] cursor-pointer"
           >
             Retry
           </button>
@@ -169,14 +173,14 @@ export const TimesheetsPage: React.FC = () => {
         <div
           className={`p-3.5 rounded-xl border flex items-center gap-2 text-xs font-semibold ${
             notification.type === 'success'
-              ? 'bg-[#71806B]/15 border-[#71806B]/30 text-[#46513F]'
-              : 'bg-[#C8755A]/15 border-[#C8755A]/30 text-[#C8755A]'
+              ? 'bg-emerald-50 border-emerald-200 text-[#16A34A]'
+              : 'bg-red-50 border-red-200 text-[#DC2626]'
           }`}
         >
           {notification.type === 'success' ? (
-            <CheckCircle className="w-4 h-4 shrink-0" />
+            <CheckCircle className="w-4 h-4 shrink-0 text-[#16A34A]" />
           ) : (
-            <AlertCircle className="w-4 h-4 shrink-0" />
+            <AlertCircle className="w-4 h-4 shrink-0 text-[#DC2626]" />
           )}
           <span>{notification.text}</span>
         </div>
@@ -184,58 +188,64 @@ export const TimesheetsPage: React.FC = () => {
 
       {/* Pending Approvals Table (Manager / HR only) */}
       {role !== 'EMPLOYEE' && (
-        <div className="bg-[#FFFDF9] border border-[#D8D4CC] rounded-xl shadow-xs overflow-hidden">
-          <div className="p-4 border-b border-[#D8D4CC] bg-[#F7F5F0]/60 flex items-center justify-between">
+        <div className="bg-white border border-[#E2E8F0] rounded-xl shadow-xs overflow-hidden">
+          <div className="p-4 border-b border-[#E2E8F0] bg-[#F8FAFC] flex items-center justify-between">
             <div>
-              <h3 className="text-sm font-bold text-[#242321]">
+              <h3 className="text-sm font-bold text-[#172033]">
                 Pending Timesheet Reviews ({pendingTimesheets.length})
               </h3>
-              <p className="text-[11px] text-[#78756F]">Awaiting verification for payroll generation</p>
+              <p className="text-[11px] text-[#64748B]">Awaiting verification for payroll generation</p>
             </div>
-            <Clock className="w-4 h-4 text-[#C99A52]" />
+            <Clock className="w-4 h-4 text-[#D97706]" />
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-[#D8D4CC] text-[#78756F]">
-                  <th className="py-3 px-4 font-semibold">Employee</th>
-                  <th className="py-3 px-4 font-semibold">Department</th>
-                  <th className="py-3 px-4 font-semibold">Week Start</th>
-                  <th className="py-3 px-4 font-semibold">Total Hours</th>
-                  <th className="py-3 px-4 font-semibold">Notes</th>
-                  <th className="py-3 px-4 font-semibold text-right">Review Action</th>
+                <tr className="bg-[#F8FAFC] border-b border-[#E2E8F0] text-[#64748B]">
+                  <th className="py-3.5 px-4 font-semibold">Employee</th>
+                  <th className="py-3.5 px-4 font-semibold">Department</th>
+                  <th className="py-3.5 px-4 font-semibold">Week Start</th>
+                  <th className="py-3.5 px-4 font-semibold">Total Hours</th>
+                  <th className="py-3.5 px-4 font-semibold">Work Information & Notes</th>
+                  <th className="py-3.5 px-4 font-semibold text-right">Review Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#D8D4CC]/50">
+              <tbody className="divide-y divide-[#E2E8F0]/80">
                 {pendingTimesheets.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="py-8 text-center text-[#78756F]">
+                    <td colSpan={6} className="py-8 text-center text-[#64748B]">
                       No pending timesheets requiring review.
                     </td>
                   </tr>
                 ) : (
                   pendingTimesheets.map((ts) => (
-                    <tr key={ts.timesheet_id} className="hover:bg-[#EAE6DE]/20">
-                      <td className="py-3 px-4">
-                        <span className="font-semibold text-[#242321]">{ts.employee_name}</span>
-                        <span className="block text-[10px] text-[#78756F] font-mono">{ts.employee_id}</span>
+                    <tr key={ts.timesheet_id} className="hover:bg-[#F8FAFC] transition-colors">
+                      <td className="py-3.5 px-4">
+                        <span className="font-semibold text-[#172033]">{ts.employee_name}</span>
+                        <span className="block text-[10px] text-[#64748B] font-mono">{ts.employee_id}</span>
                       </td>
-                      <td className="py-3 px-4 text-[#78756F]">{ts.department}</td>
-                      <td className="py-3 px-4 text-[#242321]">{ts.week_start_date}</td>
-                      <td className="py-3 px-4 font-bold text-[#46513F]">{ts.total_hours} hrs</td>
-                      <td className="py-3 px-4 text-[#78756F] max-w-xs truncate">{ts.notes || '—'}</td>
-                      <td className="py-3 px-4 text-right">
+                      <td className="py-3.5 px-4 text-[#64748B] font-medium">{ts.department}</td>
+                      <td className="py-3.5 px-4 text-[#172033]">{ts.week_start_date}</td>
+                      <td className="py-3.5 px-4 font-bold text-[#2563EB]">{ts.total_hours ?? (ts as any).hours_worked} hrs</td>
+                      <td className="py-3.5 px-4 text-[#64748B] max-w-xs">
+                        <span className="font-semibold text-[#172033] block truncate">{ts.task_name || ts.project_name || 'Operational Tasks'}</span>
+                        {ts.work_start_notes && (
+                          <span className="text-[10px] text-[#16A34A] block truncate font-medium">Start: {ts.work_start_notes}</span>
+                        )}
+                        <span className="text-[10px] text-[#64748B] block truncate">{ts.description || ts.notes || '—'}</span>
+                      </td>
+                      <td className="py-3.5 px-4 text-right">
                         <div className="flex items-center justify-end gap-1.5">
                           <button
                             onClick={() => handleApprove(ts.timesheet_id)}
-                            className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#46513F] text-white text-[11px] font-semibold hover:bg-[#46513F]/90 cursor-pointer"
+                            className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#16A34A] text-white text-[11px] font-semibold hover:bg-emerald-700 transition-colors cursor-pointer shadow-xs"
                           >
                             <Check className="w-3 h-3" /> Approve
                           </button>
                           <button
                             onClick={() => setRejectTarget(ts)}
-                            className="flex items-center gap-1 px-2.5 py-1 rounded-md border border-[#C8755A]/40 text-[#C8755A] text-[11px] font-semibold hover:bg-[#C8755A]/10 cursor-pointer"
+                            className="flex items-center gap-1 px-2.5 py-1 rounded-md border border-red-200 text-[#DC2626] text-[11px] font-semibold hover:bg-red-50 transition-colors cursor-pointer"
                           >
                             <X className="w-3 h-3" /> Reject
                           </button>
@@ -251,62 +261,70 @@ export const TimesheetsPage: React.FC = () => {
       )}
 
       {/* Main Records Table */}
-      <div className="bg-[#FFFDF9] border border-[#D8D4CC] rounded-xl shadow-xs overflow-hidden">
-        <div className="p-4 border-b border-[#D8D4CC] bg-[#F7F5F0]/60">
-          <h3 className="text-sm font-bold text-[#242321]">
+      <div className="bg-white border border-[#E2E8F0] rounded-xl shadow-xs overflow-hidden">
+        <div className="p-4 border-b border-[#E2E8F0] bg-[#F8FAFC]">
+          <h3 className="text-sm font-bold text-[#172033]">
             {role === 'EMPLOYEE' ? 'My Timesheet History' : 'All Logged Timesheets'}
           </h3>
-          <p className="text-[11px] text-[#78756F]">Historical record of submitted weekly hours</p>
+          <p className="text-[11px] text-[#64748B]">Historical record of submitted weekly hours</p>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-[#D8D4CC] text-[#78756F]">
-                {role !== 'EMPLOYEE' && <th className="py-3 px-4 font-semibold">Employee</th>}
-                <th className="py-3 px-4 font-semibold">Week Start Date</th>
-                <th className="py-3 px-4 font-semibold">Logged Hours</th>
-                <th className="py-3 px-4 font-semibold">Submission Date</th>
-                <th className="py-3 px-4 font-semibold">Reviewer Notes</th>
-                <th className="py-3 px-4 font-semibold">Status</th>
+              <tr className="bg-[#F8FAFC] border-b border-[#E2E8F0] text-[#64748B]">
+                {role !== 'EMPLOYEE' && <th className="py-3.5 px-4 font-semibold">Employee</th>}
+                <th className="py-3.5 px-4 font-semibold">Week Start Date</th>
+                <th className="py-3.5 px-4 font-semibold">Work Information</th>
+                <th className="py-3.5 px-4 font-semibold">Logged Hours</th>
+                <th className="py-3.5 px-4 font-semibold">Submission Date</th>
+                <th className="py-3.5 px-4 font-semibold">Reviewer Notes</th>
+                <th className="py-3.5 px-4 font-semibold">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#D8D4CC]/50">
+            <tbody className="divide-y divide-[#E2E8F0]/80">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-[#78756F]">
+                  <td colSpan={role !== 'EMPLOYEE' ? 7 : 6} className="py-8 text-center text-[#64748B]">
                     Loading timesheets...
                   </td>
                 </tr>
               ) : (role === 'EMPLOYEE' ? myTimesheets : allTimesheets).length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-[#78756F]">
+                  <td colSpan={role !== 'EMPLOYEE' ? 7 : 6} className="py-8 text-center text-[#64748B]">
                     No timesheets recorded.
                   </td>
                 </tr>
               ) : (
                 (role === 'EMPLOYEE' ? myTimesheets : allTimesheets).map((ts) => (
-                  <tr key={ts.timesheet_id} className="hover:bg-[#EAE6DE]/20">
+                  <tr key={ts.timesheet_id} className="hover:bg-[#F8FAFC] transition-colors">
                     {role !== 'EMPLOYEE' && (
-                      <td className="py-3 px-4">
-                        <span className="font-semibold text-[#242321]">{ts.employee_name}</span>
-                        <span className="block text-[10px] text-[#78756F] font-mono">{ts.employee_id}</span>
+                      <td className="py-3.5 px-4">
+                        <span className="font-semibold text-[#172033]">{ts.employee_name}</span>
+                        <span className="block text-[10px] text-[#64748B] font-mono">{ts.employee_id}</span>
                       </td>
                     )}
-                    <td className="py-3 px-4 font-medium text-[#242321]">{ts.week_start_date}</td>
-                    <td className="py-3 px-4 font-bold text-[#242321]">{ts.total_hours} hrs</td>
-                    <td className="py-3 px-4 text-[#78756F]">{ts.created_at?.split('T')[0]}</td>
-                    <td className="py-3 px-4 text-[#78756F] max-w-xs truncate">
-                      {ts.manager_comments || '—'}
+                    <td className="py-3.5 px-4 font-medium text-[#172033]">{ts.week_start_date}</td>
+                    <td className="py-3.5 px-4 text-[#64748B] max-w-xs">
+                      <span className="font-semibold text-[#172033] block truncate">{ts.task_name || ts.project_name || 'Operational Work'}</span>
+                      {ts.work_start_notes && (
+                        <span className="text-[10px] text-[#16A34A] block truncate font-medium">Start: {ts.work_start_notes}</span>
+                      )}
+                      <span className="text-[10px] text-[#64748B] block truncate">{ts.description || ts.notes || '—'}</span>
                     </td>
-                    <td className="py-3 px-4">
+                    <td className="py-3.5 px-4 font-bold text-[#172033]">{ts.total_hours ?? (ts as any).hours_worked} hrs</td>
+                    <td className="py-3.5 px-4 text-[#64748B]">{ts.created_at?.split('T')[0] || (ts as any).date}</td>
+                    <td className="py-3.5 px-4 text-[#64748B] max-w-xs truncate">
+                      {ts.manager_comments || (ts as any).comments || '—'}
+                    </td>
+                    <td className="py-3.5 px-4">
                       <span
-                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                          ts.status === 'APPROVED'
-                            ? 'bg-[#71806B]/15 text-[#46513F]'
-                            : ts.status === 'REJECTED'
-                            ? 'bg-[#C8755A]/15 text-[#C8755A]'
-                            : 'bg-[#C99A52]/15 text-[#C99A52]'
+                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
+                          ts.status?.toUpperCase() === 'APPROVED'
+                            ? 'bg-emerald-50 text-[#16A34A] border-emerald-200'
+                            : ts.status?.toUpperCase() === 'REJECTED'
+                            ? 'bg-red-50 text-[#DC2626] border-red-200'
+                            : 'bg-amber-50 text-[#D97706] border-amber-200'
                         }`}
                       >
                         {ts.status}
@@ -322,13 +340,13 @@ export const TimesheetsPage: React.FC = () => {
 
       {/* Submit Timesheet Modal */}
       {showSubmitModal && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-[#FFFDF9] border border-[#D8D4CC] rounded-2xl max-w-lg w-full p-6 shadow-2xl">
-            <div className="flex items-center justify-between pb-3 border-b border-[#D8D4CC]">
-              <h3 className="text-base font-bold text-[#242321]">Log Weekly Timesheet</h3>
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-[#E2E8F0] rounded-2xl max-w-lg w-full p-6 shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
+              <h3 className="text-base font-bold text-[#172033]">Log Weekly Timesheet</h3>
               <button
                 onClick={() => setShowSubmitModal(false)}
-                className="p-1 rounded-lg text-[#78756F] hover:bg-[#EAE6DE] cursor-pointer"
+                className="p-1 rounded-lg text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#172033] cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -336,21 +354,21 @@ export const TimesheetsPage: React.FC = () => {
 
             <form onSubmit={handleSubmitTimesheet} className="mt-4 space-y-3.5 text-xs">
               <div>
-                <label className="block font-semibold mb-1 text-[#242321]">Week Starting (Monday) *</label>
+                <label className="block font-semibold mb-1 text-[#172033]">Week Starting (Monday) *</label>
                 <input
                   type="date"
                   required
                   value={weekStart}
                   onChange={(e) => setWeekStart(e.target.value)}
-                  className="w-full px-3 py-2 border border-[#D8D4CC] rounded-lg bg-[#FFFDF9] outline-none"
+                  className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg bg-white text-[#172033] outline-none focus:border-[#2563EB]"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold mb-2 text-[#242321]">Daily Hours Allocation</label>
+                <label className="block font-semibold mb-2 text-[#172033]">Daily Hours Allocation</label>
                 <div className="grid grid-cols-5 gap-2 text-center">
                   <div>
-                    <span className="text-[10px] text-[#78756F] font-bold block mb-1">Mon</span>
+                    <span className="text-[10px] text-[#64748B] font-bold block mb-1">Mon</span>
                     <input
                       type="number"
                       min={0}
@@ -358,11 +376,11 @@ export const TimesheetsPage: React.FC = () => {
                       step={0.5}
                       value={monHours}
                       onChange={(e) => setMonHours(Number(e.target.value))}
-                      className="w-full text-center px-1 py-1.5 border border-[#D8D4CC] rounded-lg bg-[#FFFDF9]"
+                      className="w-full text-center px-1 py-1.5 border border-[#E2E8F0] rounded-lg bg-white text-[#172033] focus:border-[#2563EB]"
                     />
                   </div>
                   <div>
-                    <span className="text-[10px] text-[#78756F] font-bold block mb-1">Tue</span>
+                    <span className="text-[10px] text-[#64748B] font-bold block mb-1">Tue</span>
                     <input
                       type="number"
                       min={0}
@@ -370,11 +388,11 @@ export const TimesheetsPage: React.FC = () => {
                       step={0.5}
                       value={tueHours}
                       onChange={(e) => setTueHours(Number(e.target.value))}
-                      className="w-full text-center px-1 py-1.5 border border-[#D8D4CC] rounded-lg bg-[#FFFDF9]"
+                      className="w-full text-center px-1 py-1.5 border border-[#E2E8F0] rounded-lg bg-white text-[#172033] focus:border-[#2563EB]"
                     />
                   </div>
                   <div>
-                    <span className="text-[10px] text-[#78756F] font-bold block mb-1">Wed</span>
+                    <span className="text-[10px] text-[#64748B] font-bold block mb-1">Wed</span>
                     <input
                       type="number"
                       min={0}
@@ -382,11 +400,11 @@ export const TimesheetsPage: React.FC = () => {
                       step={0.5}
                       value={wedHours}
                       onChange={(e) => setWedHours(Number(e.target.value))}
-                      className="w-full text-center px-1 py-1.5 border border-[#D8D4CC] rounded-lg bg-[#FFFDF9]"
+                      className="w-full text-center px-1 py-1.5 border border-[#E2E8F0] rounded-lg bg-white text-[#172033] focus:border-[#2563EB]"
                     />
                   </div>
                   <div>
-                    <span className="text-[10px] text-[#78756F] font-bold block mb-1">Thu</span>
+                    <span className="text-[10px] text-[#64748B] font-bold block mb-1">Thu</span>
                     <input
                       type="number"
                       min={0}
@@ -394,11 +412,11 @@ export const TimesheetsPage: React.FC = () => {
                       step={0.5}
                       value={thuHours}
                       onChange={(e) => setThuHours(Number(e.target.value))}
-                      className="w-full text-center px-1 py-1.5 border border-[#D8D4CC] rounded-lg bg-[#FFFDF9]"
+                      className="w-full text-center px-1 py-1.5 border border-[#E2E8F0] rounded-lg bg-white text-[#172033] focus:border-[#2563EB]"
                     />
                   </div>
                   <div>
-                    <span className="text-[10px] text-[#78756F] font-bold block mb-1">Fri</span>
+                    <span className="text-[10px] text-[#64748B] font-bold block mb-1">Fri</span>
                     <input
                       type="number"
                       min={0}
@@ -406,42 +424,53 @@ export const TimesheetsPage: React.FC = () => {
                       step={0.5}
                       value={friHours}
                       onChange={(e) => setFriHours(Number(e.target.value))}
-                      className="w-full text-center px-1 py-1.5 border border-[#D8D4CC] rounded-lg bg-[#FFFDF9]"
+                      className="w-full text-center px-1 py-1.5 border border-[#E2E8F0] rounded-lg bg-white text-[#172033] focus:border-[#2563EB]"
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="p-3 bg-[#F7F5F0] rounded-xl flex items-center justify-between border border-[#D8D4CC]">
-                <span className="font-semibold text-[#242321]">Total Logged Hours:</span>
-                <span className="font-mono font-extrabold text-sm text-[#46513F]">
+              <div className="p-3 bg-[#F8FAFC] rounded-xl flex items-center justify-between border border-[#E2E8F0]">
+                <span className="font-semibold text-[#172033]">Total Logged Hours:</span>
+                <span className="font-mono font-extrabold text-sm text-[#2563EB]">
                   {totalCalculatedHours} Hours
                 </span>
               </div>
 
               <div>
-                <label className="block font-semibold mb-1 text-[#242321]">Optional Project / Task Notes</label>
+                <label className="block font-semibold mb-1 text-[#172033]">Work-Start Notes / Initial Activity</label>
+                <input
+                  type="text"
+                  value={workStartNotes}
+                  onChange={(e) => setWorkStartNotes(e.target.value)}
+                  placeholder="e.g. 09:00 AM - Sprint standup & deliverable planning"
+                  className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg bg-white text-[#172033] outline-none focus:border-[#2563EB]"
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold mb-1 text-[#172033]">Project / Task Work Description</label>
                 <textarea
                   rows={2}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Summary of deliverables..."
-                  className="w-full px-3 py-2 border border-[#D8D4CC] rounded-lg bg-[#FFFDF9] outline-none"
+                  className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg bg-white text-[#172033] outline-none focus:border-[#2563EB]"
                 />
               </div>
 
-              <div className="pt-3 border-t border-[#D8D4CC] flex justify-end gap-2">
+              <div className="pt-3 border-t border-[#E2E8F0] flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setShowSubmitModal(false)}
-                  className="px-4 py-2 border border-[#D8D4CC] rounded-lg font-semibold hover:bg-[#EAE6DE] cursor-pointer"
+                  className="px-4 py-2 border border-[#E2E8F0] rounded-lg font-semibold hover:bg-[#F1F5F9] text-[#64748B] hover:text-[#172033] cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={actionLoading}
-                  className="px-4 py-2 bg-[#46513F] text-white rounded-lg font-bold hover:bg-[#46513F]/90 cursor-pointer disabled:opacity-50"
+                  className="px-4 py-2 bg-[#2563EB] text-white rounded-lg font-bold hover:bg-[#1D4ED8] cursor-pointer disabled:opacity-50 shadow-sm shadow-blue-500/20"
                 >
                   {actionLoading ? 'Submitting...' : 'Submit for Approval'}
                 </button>
@@ -453,12 +482,12 @@ export const TimesheetsPage: React.FC = () => {
 
       {/* Reject Timesheet Modal */}
       {rejectTarget && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-[#FFFDF9] border border-[#D8D4CC] rounded-2xl max-w-sm w-full p-5 shadow-2xl">
-            <h3 className="font-bold text-sm text-[#242321] mb-1">
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-[#E2E8F0] rounded-2xl max-w-sm w-full p-5 shadow-2xl">
+            <h3 className="font-bold text-sm text-[#172033] mb-1">
               Reject Timesheet: {rejectTarget.employee_name}
             </h3>
-            <p className="text-xs text-[#78756F] mb-3">
+            <p className="text-xs text-[#64748B] mb-3">
               State the reason for rejecting {rejectTarget.total_hours} logged hours.
             </p>
 
@@ -468,20 +497,20 @@ export const TimesheetsPage: React.FC = () => {
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
               placeholder="e.g. Overlapping unapproved overtime, discrepancy in hours..."
-              className="w-full px-3 py-2 text-xs border border-[#D8D4CC] rounded-lg bg-[#FFFDF9] outline-none"
+              className="w-full px-3 py-2 text-xs border border-[#E2E8F0] rounded-lg bg-white text-[#172033] outline-none focus:border-[#2563EB]"
             />
 
-            <div className="mt-4 pt-3 border-t border-[#D8D4CC] flex justify-end gap-2">
+            <div className="mt-4 pt-3 border-t border-[#E2E8F0] flex justify-end gap-2">
               <button
                 onClick={() => setRejectTarget(null)}
-                className="px-3 py-1.5 text-xs text-[#78756F] hover:text-[#242321] cursor-pointer"
+                className="px-3 py-1.5 text-xs text-[#64748B] hover:text-[#172033] cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleReject}
                 disabled={!rejectReason.trim()}
-                className="px-3.5 py-1.5 bg-[#C8755A] text-white text-xs font-bold rounded-lg hover:bg-[#C8755A]/90 disabled:opacity-40 cursor-pointer"
+                className="px-3.5 py-1.5 bg-[#DC2626] text-white text-xs font-bold rounded-lg hover:bg-red-700 disabled:opacity-40 cursor-pointer shadow-xs"
               >
                 Confirm Rejection
               </button>

@@ -16,20 +16,20 @@ class EmployeeBase(BaseModel):
     first_name: str
     last_name: str
     email: EmailStr
-    phone: str
+    phone: str = ""
     department: str
     designation: str
     manager_id: str | None = None
     date_of_joining: str  # YYYY-MM-DD
     employment_type: EmploymentType = "Full-Time"
     employment_status: EmploymentStatus = "Active"
-    location: str
+    location: str = "New York, NY"
     skills: list[str] = []
 
 
 class EmployeeCreate(EmployeeBase):
-    employee_id: str = Field(..., pattern=r"^[A-Z0-9_-]{3,20}$", description="Unique employee identifier")
-    salary: float = Field(..., ge=0, description="Monthly basic salary")
+    employee_id: str | None = Field(default=None, pattern=r"^[A-Z0-9_-]{3,20}$", description="Unique employee identifier")
+    salary: float = Field(default=60000.0, ge=0, description="Monthly basic salary")
     allowances: float = Field(default=0.0, ge=0)
     leave_entitlement: LeaveEntitlement = Field(default_factory=LeaveEntitlement)
     role: Literal["HR", "MANAGER", "EMPLOYEE"] = "EMPLOYEE"

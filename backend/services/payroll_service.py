@@ -151,15 +151,21 @@ class PayrollService:
 
         if pay_period:
             query["pay_period"] = pay_period
-        if employee_id:
-            query["employee_id"] = employee_id
 
         if department:
             dept_emp_ids = [
                 d["employee_id"]
                 for d in db["employees"].find({"department": department}, {"employee_id": 1})
             ]
-            query["employee_id"] = {"$in": dept_emp_ids}
+            if employee_id:
+                if employee_id in dept_emp_ids:
+                    query["employee_id"] = employee_id
+                else:
+                    query["employee_id"] = {"$in": []}
+            else:
+                query["employee_id"] = {"$in": dept_emp_ids}
+        elif employee_id:
+            query["employee_id"] = employee_id
 
         total = db["payroll"].count_documents(query)
         skip = (page - 1) * page_size

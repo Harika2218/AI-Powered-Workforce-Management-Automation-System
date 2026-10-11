@@ -175,6 +175,7 @@ export interface AttendanceRecord {
   working_hours: number;
   overtime_hours: number;
   status: 'Present' | 'Late' | 'Absent' | 'On Leave' | 'Half Day';
+  late_minutes?: number;
   work_mode?: 'office' | 'remote' | 'hybrid';
   notes?: string;
 }
@@ -190,6 +191,10 @@ export interface TimesheetRecord {
   daily_hours: Record<string, number>;
   status: 'SUBMITTED' | 'APPROVED' | 'REJECTED' | 'DRAFT';
   notes?: string;
+  work_start_notes?: string;
+  task_name?: string;
+  project_name?: string;
+  description?: string;
   manager_comments?: string;
   created_at: string;
 }

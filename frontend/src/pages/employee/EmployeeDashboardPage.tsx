@@ -84,11 +84,11 @@ export const EmployeeDashboardPage: React.FC = () => {
   if (loading) {
     return (
       <div className="space-y-6 animate-pulse">
-        <div className="h-8 bg-[#EAE6DE] rounded-lg w-1/3"></div>
+        <div className="h-8 bg-slate-200 rounded-lg w-1/3"></div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="h-44 bg-[#FFFDF9] border border-[#D8D4CC] rounded-xl"></div>
-          <div className="h-44 bg-[#FFFDF9] border border-[#D8D4CC] rounded-xl"></div>
-          <div className="h-44 bg-[#FFFDF9] border border-[#D8D4CC] rounded-xl"></div>
+          <div className="h-44 bg-white border border-[#E2E8F0] rounded-xl"></div>
+          <div className="h-44 bg-white border border-[#E2E8F0] rounded-xl"></div>
+          <div className="h-44 bg-white border border-[#E2E8F0] rounded-xl"></div>
         </div>
       </div>
     );
@@ -96,11 +96,11 @@ export const EmployeeDashboardPage: React.FC = () => {
 
   if (!data) {
     return (
-      <div className="p-8 text-center bg-[#FFFDF9] border border-[#D8D4CC] rounded-2xl max-w-lg mx-auto">
-        <p className="text-sm text-[#78756F]">Unable to load employee dashboard data.</p>
+      <div className="p-8 text-center bg-white border border-[#E2E8F0] rounded-2xl max-w-lg mx-auto shadow-sm">
+        <p className="text-sm text-[#64748B] font-medium">Unable to load employee dashboard data.</p>
         <button
           onClick={fetchDashboard}
-          className="mt-4 px-4 py-2 bg-[#46513F] text-white text-xs font-bold rounded-lg"
+          className="mt-4 px-4 py-2 bg-[#2563EB] text-white text-xs font-bold rounded-lg hover:bg-[#1D4ED8] cursor-pointer shadow-xs"
         >
           Retry
         </button>
@@ -111,19 +111,19 @@ export const EmployeeDashboardPage: React.FC = () => {
   return (
     <div className="space-y-8">
       {/* 1. Header with greeting and notification preview */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-[#E2E8F0]">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-[#242321]">
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-[#172033]">
             Welcome, {data.employee_name}
           </h2>
-          <p className="text-xs text-[#78756F] mt-1">
-            Emp ID: <span className="font-mono font-semibold text-[#46513F]">{data.employee_id}</span> • Overview of your daily schedule and requests
+          <p className="text-xs text-[#64748B] mt-1 font-medium">
+            Emp ID: <span className="font-mono font-bold text-[#2563EB]">{data.employee_id}</span> • Overview of your daily schedule and requests
           </p>
         </div>
         {data.unread_notifications_count > 0 && (
           <button
             onClick={() => navigate('/employee/notifications')}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[#C8755A]/30 bg-[#C8755A]/10 text-[#C8755A] text-xs font-semibold hover:bg-[#C8755A]/20 transition-colors cursor-pointer"
+            className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg border border-red-200 bg-red-50 text-[#DC2626] text-xs font-semibold hover:bg-red-100 transition-colors cursor-pointer shadow-2xs"
           >
             <Bell className="w-3.5 h-3.5" />
             <span>{data.unread_notifications_count} unread notifications</span>
@@ -134,16 +134,16 @@ export const EmployeeDashboardPage: React.FC = () => {
       {/* Action feedback message */}
       {actionMessage && (
         <div
-          className={`p-3.5 rounded-xl border flex items-center gap-2.5 text-xs font-medium ${
+          className={`p-3.5 rounded-xl border flex items-center gap-2.5 text-xs font-semibold ${
             actionMessage.type === 'success'
-              ? 'bg-[#71806B]/15 border-[#71806B]/30 text-[#46513F]'
-              : 'bg-[#C8755A]/15 border-[#C8755A]/30 text-[#C8755A]'
+              ? 'bg-emerald-50 border-emerald-200 text-[#16A34A]'
+              : 'bg-red-50 border-red-200 text-[#DC2626]'
           }`}
         >
           {actionMessage.type === 'success' ? (
-            <CheckCircle2 className="w-4 h-4 shrink-0" />
+            <CheckCircle2 className="w-4 h-4 shrink-0 text-[#16A34A]" />
           ) : (
-            <AlertCircle className="w-4 h-4 shrink-0" />
+            <AlertCircle className="w-4 h-4 shrink-0 text-[#DC2626]" />
           )}
           <span>{actionMessage.text}</span>
         </div>
@@ -152,47 +152,47 @@ export const EmployeeDashboardPage: React.FC = () => {
       {/* 2. Today's Attendance & Shift Status Banner */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Attendance Card with Actions */}
-        <div className="bg-[#FFFDF9] border border-[#D8D4CC] rounded-xl p-5 shadow-xs flex flex-col justify-between">
+        <div className="bg-white border border-[#E2E8F0] rounded-xl p-5 shadow-xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#78756F]">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#64748B]">
                 Today's Attendance
               </span>
               <span
-                className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
+                className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
                   data.today_status === 'Present'
-                    ? 'bg-[#71806B]/15 text-[#46513F]'
+                    ? 'bg-emerald-50 text-[#16A34A] border border-emerald-200'
                     : data.today_status === 'Late'
-                    ? 'bg-[#C99A52]/15 text-[#C99A52]'
-                    : 'bg-[#78756F]/15 text-[#78756F]'
+                    ? 'bg-amber-50 text-[#D97706] border border-amber-200'
+                    : 'bg-slate-100 text-[#64748B] border border-slate-200'
                 }`}
               >
                 {data.today_status}
               </span>
             </div>
 
-            <div className="mt-4 space-y-1.5 text-xs text-[#78756F]">
-              <div className="flex justify-between">
+            <div className="mt-4 space-y-2 text-xs text-[#64748B]">
+              <div className="flex justify-between items-center py-1 border-b border-[#E2E8F0]/60">
                 <span>Check In:</span>
-                <strong className="text-[#242321]">{data.check_in_time || '—'}</strong>
+                <strong className="text-[#172033] font-mono">{data.check_in_time || '—'}</strong>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center py-1 border-b border-[#E2E8F0]/60">
                 <span>Check Out:</span>
-                <strong className="text-[#242321]">{data.check_out_time || '—'}</strong>
+                <strong className="text-[#172033] font-mono">{data.check_out_time || '—'}</strong>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center py-1">
                 <span>Hours Logged Today:</span>
-                <strong className="text-[#46513F]">{data.working_hours_today.toFixed(1)} hrs</strong>
+                <strong className="text-[#2563EB] font-bold">{data.working_hours_today.toFixed(1)} hrs</strong>
               </div>
             </div>
           </div>
 
           {/* Functional Check-In / Check-Out Buttons */}
-          <div className="mt-5 grid grid-cols-2 gap-2 pt-3 border-t border-[#D8D4CC]/60">
+          <div className="mt-5 grid grid-cols-2 gap-2 pt-3 border-t border-[#E2E8F0]">
             <button
               onClick={handleCheckIn}
               disabled={data.is_checked_in || actionLoading}
-              className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-[#46513F] text-white text-xs font-bold hover:bg-[#46513F]/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-xs"
+              className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-sm shadow-blue-500/20 active:scale-[0.98]"
             >
               <LogIn className="w-3.5 h-3.5" />
               <span>{data.is_checked_in ? 'Checked In' : 'Check In'}</span>
@@ -201,56 +201,58 @@ export const EmployeeDashboardPage: React.FC = () => {
             <button
               onClick={handleCheckOut}
               disabled={!data.is_checked_in || data.is_checked_out || actionLoading}
-              className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg border border-[#D8D4CC] bg-[#FFFDF9] text-[#242321] text-xs font-bold hover:bg-[#EAE6DE]/50 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+              className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg border border-[#E2E8F0] bg-white text-[#172033] text-xs font-bold hover:bg-[#F8FAFC] disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-2xs"
             >
-              <LogOut className="w-3.5 h-3.5" />
+              <LogOut className="w-3.5 h-3.5 text-[#64748B]" />
               <span>{data.is_checked_out ? 'Checked Out' : 'Check Out'}</span>
             </button>
           </div>
         </div>
 
         {/* Leave Balances Card */}
-        <div className="bg-[#FFFDF9] border border-[#D8D4CC] rounded-xl p-5 shadow-xs flex flex-col justify-between">
+        <div className="bg-white border border-[#E2E8F0] rounded-xl p-5 shadow-xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#78756F]">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#64748B]">
                 Leave Balances
               </span>
-              <CalendarDays className="w-4 h-4 text-[#71806B]" />
+              <div className="p-1.5 rounded-lg bg-blue-50 text-[#2563EB]">
+                <CalendarDays className="w-4 h-4" />
+              </div>
             </div>
 
             <div className="grid grid-cols-3 gap-2 text-center">
-              <div className="p-3 rounded-lg bg-[#F7F5F0] border border-[#D8D4CC]/80">
-                <span className="text-[10px] uppercase font-semibold text-[#78756F]">Annual</span>
-                <p className="text-xl font-bold text-[#46513F] mt-1">
+              <div className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
+                <span className="text-[10px] uppercase font-semibold text-[#64748B]">Annual</span>
+                <p className="text-xl font-extrabold text-[#2563EB] mt-1">
                   {data.leave_balances?.annual ?? 0}
                 </p>
-                <span className="text-[10px] text-[#78756F]">days</span>
+                <span className="text-[10px] text-[#94A3B8] font-medium">days</span>
               </div>
 
-              <div className="p-3 rounded-lg bg-[#F7F5F0] border border-[#D8D4CC]/80">
-                <span className="text-[10px] uppercase font-semibold text-[#78756F]">Sick</span>
-                <p className="text-xl font-bold text-[#C99A52] mt-1">
+              <div className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
+                <span className="text-[10px] uppercase font-semibold text-[#64748B]">Sick</span>
+                <p className="text-xl font-extrabold text-[#D97706] mt-1">
                   {data.leave_balances?.sick ?? 0}
                 </p>
-                <span className="text-[10px] text-[#78756F]">days</span>
+                <span className="text-[10px] text-[#94A3B8] font-medium">days</span>
               </div>
 
-              <div className="p-3 rounded-lg bg-[#F7F5F0] border border-[#D8D4CC]/80">
-                <span className="text-[10px] uppercase font-semibold text-[#78756F]">Casual</span>
-                <p className="text-xl font-bold text-[#71806B] mt-1">
+              <div className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
+                <span className="text-[10px] uppercase font-semibold text-[#64748B]">Casual</span>
+                <p className="text-xl font-extrabold text-[#16A34A] mt-1">
                   {data.leave_balances?.casual ?? 0}
                 </p>
-                <span className="text-[10px] text-[#78756F]">days</span>
+                <span className="text-[10px] text-[#94A3B8] font-medium">days</span>
               </div>
             </div>
           </div>
 
-          <div className="mt-4 pt-3 border-t border-[#D8D4CC]/60 flex items-center justify-between">
-            <span className="text-[11px] text-[#78756F]">Need time off?</span>
+          <div className="mt-4 pt-3 border-t border-[#E2E8F0] flex items-center justify-between">
+            <span className="text-[11px] text-[#64748B] font-medium">Need time off?</span>
             <button
               onClick={() => navigate('/employee/leave')}
-              className="text-xs font-semibold text-[#46513F] hover:underline flex items-center gap-1 cursor-pointer"
+              className="text-xs font-semibold text-[#2563EB] hover:text-[#1D4ED8] flex items-center gap-1 cursor-pointer transition-colors"
             >
               Apply Leave <ArrowRight className="w-3 h-3" />
             </button>
@@ -258,38 +260,40 @@ export const EmployeeDashboardPage: React.FC = () => {
         </div>
 
         {/* Assigned Shift Card */}
-        <div className="bg-[#FFFDF9] border border-[#D8D4CC] rounded-xl p-5 shadow-xs flex flex-col justify-between">
+        <div className="bg-white border border-[#E2E8F0] rounded-xl p-5 shadow-xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#78756F]">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#64748B]">
                 Assigned Shift
               </span>
-              <Briefcase className="w-4 h-4 text-[#46513F]" />
+              <div className="p-1.5 rounded-lg bg-blue-50 text-[#2563EB]">
+                <Briefcase className="w-4 h-4" />
+              </div>
             </div>
 
             {data.upcoming_shift ? (
               <div className="space-y-2">
-                <div className="p-3 rounded-lg bg-[#F7F5F0] border border-[#D8D4CC]">
-                  <p className="text-sm font-bold text-[#242321]">{data.upcoming_shift.name} Shift</p>
-                  <p className="text-xs text-[#78756F] mt-1">
+                <div className="p-3.5 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
+                  <p className="text-sm font-bold text-[#172033]">{data.upcoming_shift.name} Shift</p>
+                  <p className="text-xs text-[#64748B] mt-1 font-mono">
                     {data.upcoming_shift.start_time} - {data.upcoming_shift.end_time} ({data.upcoming_shift.duration_hours} hrs)
                   </p>
                 </div>
-                <div className="text-[11px] text-[#78756F] flex justify-between px-1">
+                <div className="text-[11px] text-[#64748B] flex justify-between px-1 font-medium">
                   <span>Month Overtime:</span>
-                  <span className="font-semibold text-[#242321]">{data.overtime_hours_this_month} hrs</span>
+                  <span className="font-bold text-[#172033]">{data.overtime_hours_this_month} hrs</span>
                 </div>
               </div>
             ) : (
-              <p className="text-xs text-[#78756F] py-4">Standard 09:00 - 17:00 General Shift</p>
+              <p className="text-xs text-[#64748B] py-4 font-medium">Standard 09:00 - 17:00 General Shift</p>
             )}
           </div>
 
-          <div className="mt-4 pt-3 border-t border-[#D8D4CC]/60 flex items-center justify-between">
-            <span className="text-[11px] text-[#78756F]">View schedule</span>
+          <div className="mt-4 pt-3 border-t border-[#E2E8F0] flex items-center justify-between">
+            <span className="text-[11px] text-[#64748B] font-medium">View schedule</span>
             <button
               onClick={() => navigate('/employee/shifts')}
-              className="text-xs font-semibold text-[#46513F] hover:underline flex items-center gap-1 cursor-pointer"
+              className="text-xs font-semibold text-[#2563EB] hover:text-[#1D4ED8] flex items-center gap-1 cursor-pointer transition-colors"
             >
               My Shifts <ArrowRight className="w-3 h-3" />
             </button>
@@ -298,13 +302,15 @@ export const EmployeeDashboardPage: React.FC = () => {
       </div>
 
       {/* 3. Personal Attendance Trend Line Chart */}
-      <div className="bg-[#FFFDF9] border border-[#D8D4CC] rounded-xl p-5 shadow-xs">
+      <div className="bg-white border border-[#E2E8F0] rounded-xl p-5 shadow-xs">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="text-sm font-bold text-[#242321]">Recent Hours & Attendance Trend</h3>
-            <p className="text-[11px] text-[#78756F]">Personal daily working hours recorded</p>
+            <h3 className="text-sm font-bold text-[#172033]">Recent Hours & Attendance Trend</h3>
+            <p className="text-[11px] text-[#64748B] font-medium">Personal daily working hours recorded</p>
           </div>
-          <CalendarCheck className="w-4 h-4 text-[#71806B]" />
+          <div className="p-1.5 rounded-lg bg-emerald-50 text-[#16A34A]">
+            <CalendarCheck className="w-4 h-4" />
+          </div>
         </div>
 
         <div className="h-60 w-full">
@@ -313,24 +319,26 @@ export const EmployeeDashboardPage: React.FC = () => {
               data={data.personal_attendance_trend || []}
               margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="#D8D4CC" opacity={0.6} />
-              <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#78756F' }} />
-              <YAxis tick={{ fontSize: 11, fill: '#78756F' }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" vertical={false} />
+              <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#64748B' }} stroke="#CBD5E1" />
+              <YAxis tick={{ fontSize: 11, fill: '#64748B' }} stroke="#CBD5E1" />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: '#FFFDF9',
-                  borderColor: '#D8D4CC',
+                  backgroundColor: '#FFFFFF',
+                  borderColor: '#E2E8F0',
                   borderRadius: '8px',
+                  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
                   fontSize: '12px',
                 }}
               />
               <Line
                 type="monotone"
                 dataKey="hours"
-                stroke="#46513F"
+                stroke="#2563EB"
                 strokeWidth={2.5}
                 name="Hours Worked"
-                dot={{ r: 3 }}
+                dot={{ r: 3, fill: '#2563EB' }}
+                activeDot={{ r: 5 }}
               />
             </LineChart>
           </ResponsiveContainer>
@@ -338,15 +346,15 @@ export const EmployeeDashboardPage: React.FC = () => {
       </div>
 
       {/* 4. Recent Leave Requests Table */}
-      <div className="bg-[#FFFDF9] border border-[#D8D4CC] rounded-xl p-5 shadow-xs">
+      <div className="bg-white border border-[#E2E8F0] rounded-xl p-5 shadow-xs">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="text-sm font-bold text-[#242321]">Recent Leave Requests</h3>
-            <p className="text-[11px] text-[#78756F]">Status of recent submissions to your manager</p>
+            <h3 className="text-sm font-bold text-[#172033]">Recent Leave Requests</h3>
+            <p className="text-[11px] text-[#64748B] font-medium">Status of recent submissions to your manager</p>
           </div>
           <button
             onClick={() => navigate('/employee/leave')}
-            className="text-xs font-semibold text-[#46513F] hover:underline cursor-pointer"
+            className="text-xs font-semibold text-[#2563EB] hover:underline cursor-pointer"
           >
             All Requests
           </button>
@@ -355,40 +363,40 @@ export const EmployeeDashboardPage: React.FC = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-[#D8D4CC] text-[#78756F]">
-                <th className="pb-2 font-semibold">Type</th>
-                <th className="pb-2 font-semibold">Start Date</th>
-                <th className="pb-2 font-semibold">End Date</th>
-                <th className="pb-2 font-semibold">Days</th>
-                <th className="pb-2 font-semibold">Status</th>
+              <tr className="border-b border-[#E2E8F0] text-[#64748B] bg-[#F8FAFC]">
+                <th className="py-2.5 px-3 font-semibold uppercase tracking-wider text-[11px]">Type</th>
+                <th className="py-2.5 px-3 font-semibold uppercase tracking-wider text-[11px]">Start Date</th>
+                <th className="py-2.5 px-3 font-semibold uppercase tracking-wider text-[11px]">End Date</th>
+                <th className="py-2.5 px-3 font-semibold uppercase tracking-wider text-[11px]">Days</th>
+                <th className="py-2.5 px-3 font-semibold uppercase tracking-wider text-[11px]">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#D8D4CC]/50">
+            <tbody className="divide-y divide-[#E2E8F0]">
               {data.recent_leave_requests?.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-6 text-center text-[#78756F]">
+                  <td colSpan={5} className="py-6 text-center text-[#64748B] font-medium">
                     No recent leave requests found.
                   </td>
                 </tr>
               ) : (
                 data.recent_leave_requests.map((req) => (
-                  <tr key={req.request_id} className="hover:bg-[#EAE6DE]/20">
-                    <td className="py-2.5 font-medium text-[#242321] capitalize">
+                  <tr key={req.request_id} className="hover:bg-[#F8FAFC] transition-colors">
+                    <td className="py-2.5 px-3 font-medium text-[#172033] capitalize">
                       {req.leave_type}
                     </td>
-                    <td className="py-2.5 text-[#78756F]">{req.start_date}</td>
-                    <td className="py-2.5 text-[#78756F]">{req.end_date}</td>
-                    <td className="py-2.5 text-[#242321] font-semibold">{req.days_count}</td>
-                    <td className="py-2.5">
+                    <td className="py-2.5 px-3 text-[#64748B] font-mono">{req.start_date}</td>
+                    <td className="py-2.5 px-3 text-[#64748B] font-mono">{req.end_date}</td>
+                    <td className="py-2.5 px-3 text-[#172033] font-bold">{req.days_count}</td>
+                    <td className="py-2.5 px-3">
                       <span
-                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
                           req.status === 'APPROVED'
-                            ? 'bg-[#71806B]/15 text-[#46513F]'
+                            ? 'bg-emerald-50 text-[#16A34A] border-emerald-200'
                             : req.status === 'REJECTED'
-                            ? 'bg-[#C8755A]/15 text-[#C8755A]'
+                            ? 'bg-red-50 text-[#DC2626] border-red-200'
                             : req.status === 'CANCELLED'
-                            ? 'bg-[#78756F]/15 text-[#78756F]'
-                            : 'bg-[#C99A52]/15 text-[#C99A52]'
+                            ? 'bg-slate-100 text-[#64748B] border-slate-200'
+                            : 'bg-amber-50 text-[#D97706] border-amber-200'
                         }`}
                       >
                         {req.status}

@@ -20,6 +20,11 @@ export interface PaginatedEmployeesResponse {
 }
 
 export const employeesApi = {
+  getDepartments: async (): Promise<string[]> => {
+    const res = await apiClient.get<string[]>('/employees/departments');
+    return res.data;
+  },
+
   getEmployees: async (params?: GetEmployeesParams): Promise<PaginatedEmployeesResponse> => {
     const res = await apiClient.get<PaginatedEmployeesResponse>('/employees', { params });
     return res.data;

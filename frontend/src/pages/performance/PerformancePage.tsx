@@ -102,10 +102,10 @@ export const PerformancePage: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-[#242321]">
+          <h2 className="text-2xl font-bold tracking-tight text-[#172033]">
             Performance Evaluations
           </h2>
-          <p className="text-xs text-[#78756F] mt-1">
+          <p className="text-xs text-[#64748B] mt-1">
             {role === 'EMPLOYEE'
               ? 'Your formal quarterly appraisal ratings, goal completions, and manager feedback'
               : 'Conduct structured appraisals, evaluate competency milestones, and track ratings'}
@@ -115,7 +115,7 @@ export const PerformancePage: React.FC = () => {
         {role !== 'EMPLOYEE' && (
           <button
             onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-[#46513F] text-white text-xs font-bold rounded-lg hover:bg-[#46513F]/90 transition-colors shadow-xs cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2 bg-[#2563EB] text-white text-xs font-bold rounded-lg hover:bg-[#1D4ED8] transition-colors shadow-sm shadow-blue-500/20 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>New Appraisal</span>
@@ -124,11 +124,11 @@ export const PerformancePage: React.FC = () => {
       </div>
 
       {error && (
-        <div className="p-4 rounded-xl bg-[#C8755A]/10 border border-[#C8755A]/30 flex items-center justify-between text-xs text-[#C8755A]">
+        <div className="p-4 rounded-xl bg-red-50 border border-red-200 flex items-center justify-between text-xs text-[#DC2626]">
           <span>{error}</span>
           <button
             onClick={fetchReviews}
-            className="px-3 py-1 bg-[#46513F] text-white text-xs font-bold rounded-lg hover:bg-[#46513F]/90 cursor-pointer"
+            className="px-3 py-1 bg-[#2563EB] text-white text-xs font-bold rounded-lg hover:bg-[#1D4ED8] cursor-pointer"
           >
             Retry
           </button>
@@ -136,12 +136,12 @@ export const PerformancePage: React.FC = () => {
       )}
 
       {notification && (
-        <div className="p-3.5 rounded-xl bg-[#71806B]/15 border border-[#71806B]/30 text-[#46513F] text-xs font-semibold flex items-center justify-between">
+        <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-[#16A34A] text-xs font-semibold flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 shrink-0" />
+            <CheckCircle2 className="w-4 h-4 shrink-0 text-[#16A34A]" />
             <span>{notification}</span>
           </div>
-          <button onClick={() => setNotification(null)} className="cursor-pointer">
+          <button onClick={() => setNotification(null)} className="cursor-pointer text-[#64748B] hover:text-[#172033]">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -149,7 +149,7 @@ export const PerformancePage: React.FC = () => {
 
       {/* Filter and Search Bar */}
       {role !== 'EMPLOYEE' && (
-        <div className="bg-[#FFFDF9] border border-[#D8D4CC] rounded-xl p-3.5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="bg-white border border-[#E2E8F0] rounded-xl p-3.5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-1.5 overflow-x-auto">
             {(['ALL', 'Completed', 'Pending', 'Draft'] as const).map((st) => (
               <button
@@ -157,8 +157,8 @@ export const PerformancePage: React.FC = () => {
                 onClick={() => setStatusFilter(st)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   statusFilter === st
-                    ? 'bg-[#46513F] text-white'
-                    : 'bg-[#F7F5F0] text-[#78756F] hover:bg-[#EAE6DE]'
+                    ? 'bg-[#2563EB] text-white shadow-xs'
+                    : 'bg-[#F1F5F9] text-[#64748B] hover:bg-slate-200'
                 }`}
               >
                 {st === 'ALL' ? 'All Reviews' : st}
@@ -172,7 +172,7 @@ export const PerformancePage: React.FC = () => {
               placeholder="Search employee or department..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="px-3 py-1.5 text-xs border border-[#D8D4CC] rounded-lg bg-[#FFFDF9] text-[#242321] outline-none w-64"
+              className="px-3 py-1.5 text-xs border border-[#E2E8F0] rounded-lg bg-white text-[#172033] outline-none w-64 focus:border-[#2563EB]"
             />
           </div>
         </div>
@@ -181,84 +181,84 @@ export const PerformancePage: React.FC = () => {
       {/* Reviews Cards List */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {loading ? (
-          <div className="col-span-2 py-12 text-center text-xs text-[#78756F]">
+          <div className="col-span-2 py-12 text-center text-xs text-[#64748B]">
             Loading performance evaluations...
           </div>
         ) : filteredReviews.length === 0 ? (
-          <div className="col-span-2 py-12 text-center text-xs text-[#78756F] bg-[#FFFDF9] border border-[#D8D4CC] rounded-2xl">
+          <div className="col-span-2 py-12 text-center text-xs text-[#64748B] bg-white border border-[#E2E8F0] rounded-2xl">
             No performance evaluation records found.
           </div>
         ) : (
           filteredReviews.map((rev) => (
             <div
               key={rev.review_id}
-              className="bg-[#FFFDF9] border border-[#D8D4CC] rounded-2xl p-5 shadow-xs flex flex-col justify-between"
+              className="bg-white border border-[#E2E8F0] rounded-2xl p-5 shadow-xs flex flex-col justify-between hover:border-blue-200 transition-colors"
             >
               <div>
-                <div className="flex items-center justify-between pb-3 border-b border-[#D8D4CC]/60 mb-3">
+                <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0] mb-3">
                   <div>
-                    <span className="text-[10px] font-mono font-bold uppercase text-[#71806B] bg-[#71806B]/10 px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] font-mono font-bold uppercase text-[#2563EB] bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
                       {rev.period}
                     </span>
-                    <h3 className="text-base font-bold text-[#242321] mt-1.5">
+                    <h3 className="text-base font-bold text-[#172033] mt-1.5">
                       {rev.employee_name}
                     </h3>
-                    <p className="text-xs text-[#78756F]">
+                    <p className="text-xs text-[#64748B]">
                       {rev.department} • Reviewer: {rev.reviewer_name || 'HR/Manager'}
                     </p>
                   </div>
                   <div className="text-right">
-                    <span className="text-[10px] uppercase font-bold text-[#78756F] block">
+                    <span className="text-[10px] uppercase font-bold text-[#64748B] block">
                       Score
                     </span>
-                    <span className="text-2xl font-extrabold text-[#46513F]">
+                    <span className="text-2xl font-extrabold text-[#2563EB]">
                       {rev.overall_score?.toFixed(1)}
                     </span>
-                    <span className="text-xs text-[#78756F] font-normal"> / 5.0</span>
+                    <span className="text-xs text-[#64748B] font-normal"> / 5.0</span>
                   </div>
                 </div>
 
                 <div className="space-y-3 text-xs">
                   <div>
-                    <div className="flex justify-between text-[#78756F] mb-1">
+                    <div className="flex justify-between text-[#64748B] mb-1">
                       <span>Goals Alignment:</span>
-                      <strong className="text-[#242321]">{rev.goals_rating?.toFixed(1)} / 5.0</strong>
+                      <strong className="text-[#172033]">{rev.goals_rating?.toFixed(1)} / 5.0</strong>
                     </div>
-                    <div className="w-full bg-[#EAE6DE] h-1.5 rounded-full overflow-hidden">
+                    <div className="w-full bg-[#F1F5F9] h-1.5 rounded-full overflow-hidden">
                       <div
-                        className="bg-[#46513F] h-1.5 rounded-full"
+                        className="bg-[#2563EB] h-1.5 rounded-full"
                         style={{ width: `${((rev.goals_rating || 0) / 5.0) * 100}%` }}
                       ></div>
                     </div>
                   </div>
 
                   {rev.strengths && (
-                    <div className="p-3 bg-[#F7F5F0] rounded-xl border border-[#D8D4CC]">
-                      <span className="font-bold text-[#46513F] block text-[11px] mb-0.5">
+                    <div className="p-3 bg-emerald-50/60 rounded-xl border border-emerald-200">
+                      <span className="font-bold text-[#16A34A] block text-[11px] mb-0.5">
                         Key Strengths:
                       </span>
-                      <p className="text-[#242321]">{rev.strengths}</p>
+                      <p className="text-[#172033]">{rev.strengths}</p>
                     </div>
                   )}
 
                   {rev.areas_for_improvement && (
-                    <div className="p-3 bg-[#F7F5F0] rounded-xl border border-[#D8D4CC]">
-                      <span className="font-bold text-[#C8755A] block text-[11px] mb-0.5">
+                    <div className="p-3 bg-amber-50/60 rounded-xl border border-amber-200">
+                      <span className="font-bold text-[#D97706] block text-[11px] mb-0.5">
                         Areas for Development:
                       </span>
-                      <p className="text-[#242321]">{rev.areas_for_improvement}</p>
+                      <p className="text-[#172033]">{rev.areas_for_improvement}</p>
                     </div>
                   )}
 
                   {rev.comments && (
-                    <p className="text-[11px] text-[#78756F] italic">"{rev.comments}"</p>
+                    <p className="text-[11px] text-[#64748B] italic">"{rev.comments}"</p>
                   )}
                 </div>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-[#D8D4CC]/60 flex items-center justify-between text-[11px] text-[#78756F]">
+              <div className="mt-4 pt-3 border-t border-[#E2E8F0] flex items-center justify-between text-[11px] text-[#64748B]">
                 <span>Appraisal ID: {rev.review_id}</span>
-                <span className="font-bold text-[#46513F] uppercase">{rev.status}</span>
+                <span className="font-bold text-[#2563EB] uppercase">{rev.status}</span>
               </div>
             </div>
           ))
@@ -267,13 +267,13 @@ export const PerformancePage: React.FC = () => {
 
       {/* New Appraisal Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-[#FFFDF9] border border-[#D8D4CC] rounded-2xl max-w-lg w-full p-6 shadow-2xl">
-            <div className="flex items-center justify-between pb-3 border-b border-[#D8D4CC]">
-              <h3 className="text-base font-bold text-[#242321]">Submit Performance Appraisal</h3>
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-[#E2E8F0] rounded-2xl max-w-lg w-full p-6 shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
+              <h3 className="text-base font-bold text-[#172033]">Submit Performance Appraisal</h3>
               <button
                 onClick={() => setShowModal(false)}
-                className="p-1 rounded-lg text-[#78756F] hover:bg-[#EAE6DE] cursor-pointer"
+                className="p-1 rounded-lg text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#172033] cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -281,12 +281,12 @@ export const PerformancePage: React.FC = () => {
 
             <form onSubmit={handleSubmitReview} className="mt-4 space-y-3.5 text-xs">
               <div>
-                <label className="block font-semibold mb-1 text-[#242321]">Select Employee *</label>
+                <label className="block font-semibold mb-1 text-[#172033]">Select Employee *</label>
                 <select
                   required
                   value={targetEmpId}
                   onChange={(e) => setTargetEmpId(e.target.value)}
-                  className="w-full px-3 py-2 border border-[#D8D4CC] rounded-lg bg-[#FFFDF9] text-[#242321] outline-none"
+                  className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg bg-white text-[#172033] outline-none focus:border-[#2563EB]"
                 >
                   <option value="">Choose an employee...</option>
                   {employeesList.map((emp) => (
@@ -299,18 +299,18 @@ export const PerformancePage: React.FC = () => {
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block font-semibold mb-1 text-[#242321]">Review Period *</label>
+                  <label className="block font-semibold mb-1 text-[#172033]">Review Period *</label>
                   <input
                     type="text"
                     required
                     value={period}
                     onChange={(e) => setPeriod(e.target.value)}
                     placeholder="Q3 2026"
-                    className="w-full px-3 py-2 border border-[#D8D4CC] rounded-lg bg-[#FFFDF9] outline-none"
+                    className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg bg-white text-[#172033] outline-none focus:border-[#2563EB]"
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold mb-1 text-[#242321]">Overall Score (1-5)</label>
+                  <label className="block font-semibold mb-1 text-[#172033]">Overall Score (1-5)</label>
                   <input
                     type="number"
                     min={1}
@@ -319,11 +319,11 @@ export const PerformancePage: React.FC = () => {
                     required
                     value={score}
                     onChange={(e) => setScore(Number(e.target.value))}
-                    className="w-full px-3 py-2 border border-[#D8D4CC] rounded-lg bg-[#FFFDF9] outline-none"
+                    className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg bg-white text-[#172033] outline-none focus:border-[#2563EB]"
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold mb-1 text-[#242321]">Goals Rating (1-5)</label>
+                  <label className="block font-semibold mb-1 text-[#172033]">Goals Rating (1-5)</label>
                   <input
                     type="number"
                     min={1}
@@ -332,58 +332,58 @@ export const PerformancePage: React.FC = () => {
                     required
                     value={goalsRating}
                     onChange={(e) => setGoalsRating(Number(e.target.value))}
-                    className="w-full px-3 py-2 border border-[#D8D4CC] rounded-lg bg-[#FFFDF9] outline-none"
+                    className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg bg-white text-[#172033] outline-none focus:border-[#2563EB]"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-semibold mb-1 text-[#242321]">Core Strengths *</label>
+                <label className="block font-semibold mb-1 text-[#172033]">Core Strengths *</label>
                 <textarea
                   required
                   rows={2}
                   value={strengths}
                   onChange={(e) => setStrengths(e.target.value)}
                   placeholder="Key accomplishments and competencies..."
-                  className="w-full px-3 py-2 border border-[#D8D4CC] rounded-lg bg-[#FFFDF9] outline-none"
+                  className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg bg-white text-[#172033] outline-none focus:border-[#2563EB]"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold mb-1 text-[#242321]">Areas for Improvement *</label>
+                <label className="block font-semibold mb-1 text-[#172033]">Areas for Improvement *</label>
                 <textarea
                   required
                   rows={2}
                   value={improvements}
                   onChange={(e) => setImprovements(e.target.value)}
                   placeholder="Growth opportunities..."
-                  className="w-full px-3 py-2 border border-[#D8D4CC] rounded-lg bg-[#FFFDF9] outline-none"
+                  className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg bg-white text-[#172033] outline-none focus:border-[#2563EB]"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold mb-1 text-[#242321]">Summary Comments</label>
+                <label className="block font-semibold mb-1 text-[#172033]">Summary Comments</label>
                 <textarea
                   rows={2}
                   value={comments}
                   onChange={(e) => setComments(e.target.value)}
                   placeholder="Managerial appraisal remarks..."
-                  className="w-full px-3 py-2 border border-[#D8D4CC] rounded-lg bg-[#FFFDF9] outline-none"
+                  className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg bg-white text-[#172033] outline-none focus:border-[#2563EB]"
                 />
               </div>
 
-              <div className="pt-3 border-t border-[#D8D4CC] flex justify-end gap-2">
+              <div className="pt-3 border-t border-[#E2E8F0] flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 border border-[#D8D4CC] rounded-lg font-semibold hover:bg-[#EAE6DE] cursor-pointer"
+                  className="px-4 py-2 border border-[#E2E8F0] rounded-lg font-semibold hover:bg-[#F1F5F9] text-[#64748B] hover:text-[#172033] cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-4 py-2 bg-[#46513F] text-white rounded-lg font-bold hover:bg-[#46513F]/90 cursor-pointer disabled:opacity-50"
+                  className="px-4 py-2 bg-[#2563EB] text-white rounded-lg font-bold hover:bg-[#1D4ED8] cursor-pointer disabled:opacity-50 shadow-sm shadow-blue-500/20"
                 >
                   {submitting ? 'Submitting...' : 'Record Review'}
                 </button>

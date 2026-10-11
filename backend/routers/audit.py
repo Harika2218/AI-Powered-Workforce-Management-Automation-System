@@ -1,4 +1,5 @@
 from typing import Any
+from bson import ObjectId
 from fastapi import APIRouter, Depends, Query
 from pymongo import DESCENDING
 from backend.database import get_db
@@ -6,6 +7,31 @@ from backend.models.base import serialize_doc
 from backend.utils.permissions import require_hr
 
 router = APIRouter(prefix="/audit-logs", tags=["Audit Logging"])
+
+SENSITIVE_KEY_SUBSTRINGS = (
+    "password",
+    "token",
+    "secret",
+    "hash",
+    "jwt",
+    "auth",
+    "key",
+)
+
+
+def _sanitize_val(v: Any) -> Any:
+    """Recursively convert ObjectId to string, strip internal _id, and redact sensitive fields."""
+    if isinstance(v, ObjectId):
+        return str(v)
+    if isinstance(v, dict):
+        return {
+            k: _sanitize_val(val)
+            for k, val in v.items()
+            if k != "_id" and not any(s in k.lower() for s in SENSITIVE_KEY_SUBSTRINGS)
+        }
+    if isinstance(v, list):
+        return [_sanitize_val(x) for x in v]
+    return v
 
 
 @router.get("", summary="Get System Audit Logs")
@@ -34,31 +60,60 @@ def get_audit_logs(
     cursor = db["audit_logs"].find(query).sort("timestamp", DESCENDING).skip(skip).limit(page_size)
 
     total_pages = (total + page_size - 1) // page_size if total > 0 else 1
-    
+
     # Preload user mapping for fast enrichment
     user_ids = [doc.get("user_id") for doc in cursor if doc.get("user_id")]
     cursor.rewind()
     user_map = {}
     if user_ids:
-        for u in db["users"].find({"user_id": {"$in": user_ids}}, {"user_id": 1, "email": 1, "role": 1}):
+        for u in db["users"].find({"user_id": {"$in": user_ids}}, {"user_id": 1, "email": 1, "role": 1, "_id": 0}):
             user_map[u["user_id"]] = u
 
     items = []
     for doc in cursor:
-        d = serialize_doc(doc)
+        d = serialize_doc(doc) or {}
         uid = d.get("user_id")
         user_info = user_map.get(uid, {})
-        d["user_email"] = d.get("user_email") or user_info.get("email") or uid or "system@company.com"
-        d["user_role"] = d.get("user_role") or user_info.get("role") or "SYSTEM"
+        d["user_email"] = (
+            d.get("user_email")
+            or user_info.get("email")
+            or (f"{uid.lower()}@company.com" if uid and uid != "SYSTEM" else "system@company.com")
+        )
+        d["user_role"] = (
+            d.get("user_role")
+            or user_info.get("role")
+            or ("HR" if "HR" in str(uid) else "MANAGER" if "MGR" in str(uid) else "EMPLOYEE" if "EMP" in str(uid) else "SYSTEM")
+        )
         d["entity"] = d.get("entity") or d.get("entity_type") or "SYSTEM"
-        
+        d["entity_id"] = str(d.get("entity_id") or "N/A")
+        d["ip_address"] = d.get("ip_address") or "127.0.0.1"
+
         meta = d.get("metadata") or {}
         if not d.get("details"):
             if isinstance(meta, dict) and meta:
-                d["details"] = ", ".join(f"{k}: {v}" for k, v in meta.items())
+                pairs = []
+                for k, v in meta.items():
+                    if k == "_id" or any(s in k.lower() for s in SENSITIVE_KEY_SUBSTRINGS):
+                        continue
+                    val_str = (
+                        str(v)
+                        if not isinstance(v, (dict, list))
+                        else ", ".join(f"{sub_k}: {sub_v}" for sub_k, sub_v in v.items() if sub_k != "_id")
+                        if isinstance(v, dict)
+                        else str(v)
+                    )
+                    pairs.append(f"{k}: {val_str}")
+                action_name = d.get("action", "Action")
+                entity_ref = d.get("entity_id", "record")
+                d["details"] = ", ".join(pairs) if pairs else f"{action_name} performed on {entity_ref}"
             else:
-                d["details"] = f"{d.get('action', 'Action')} performed on {d.get('entity_id', 'record')}"
-        items.append(d)
+                action_name = d.get("action", "Action")
+                entity_ref = d.get("entity_id", "record")
+                d["details"] = f"{action_name} performed on {entity_ref}"
+
+        # Clean any nested ObjectIds or sensitive fields
+        sanitized = _sanitize_val(d)
+        items.append(sanitized)
 
     return {
         "items": items,
@@ -67,3 +122,4 @@ def get_audit_logs(
         "page_size": page_size,
         "total_pages": total_pages,
     }
+

@@ -39,3 +39,4 @@ logs/
 Thumbs.db
 .idea/
 .vscode/
+*.zip

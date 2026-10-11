@@ -108,14 +108,35 @@ class EmployeeService:
         return emp
 
     @staticmethod
+    def get_departments() -> list[str]:
+        db = get_db()
+        depts = db["employees"].distinct("department")
+        return sorted([d for d in depts if d])
+
+    @staticmethod
     def create_employee(current_user: dict, payload: EmployeeCreate) -> dict:
         db = get_db()
-        # Verify employee_id unique
-        if db["employees"].find_one({"employee_id": payload.employee_id}):
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=f"Employee ID '{payload.employee_id}' already exists",
-            )
+        # Verify employee_id or auto-generate according to convention EMP####
+        if payload.employee_id and payload.employee_id.strip():
+            emp_id = payload.employee_id.strip().upper()
+            if db["employees"].find_one({"employee_id": emp_id}):
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=f"Employee ID '{emp_id}' already exists",
+                )
+        else:
+            import re
+            emp_nums = []
+            for e in db.employees.find({}, {"employee_id": 1}):
+                m = re.match(r"^EMP(\d{4})$", e.get("employee_id", ""))
+                if m:
+                    emp_nums.append(int(m.group(1)))
+            next_num = (max(emp_nums) + 1) if emp_nums else 1
+            emp_id = f"EMP{next_num:04d}"
+            while db.employees.find_one({"employee_id": emp_id}):
+                next_num += 1
+                emp_id = f"EMP{next_num:04d}"
+
         # Verify email unique
         email_clean = payload.email.lower().strip()
         if db["employees"].find_one({"email": email_clean}) or db["users"].find_one({"email": email_clean}):
@@ -134,7 +155,7 @@ class EmployeeService:
 
         now_str = now_iso()
         emp_doc = {
-            "employee_id": payload.employee_id,
+            "employee_id": emp_id,
             "first_name": payload.first_name,
             "last_name": payload.last_name,
             "full_name": f"{payload.first_name} {payload.last_name}",
@@ -158,13 +179,13 @@ class EmployeeService:
         db["employees"].insert_one(emp_doc)
 
         # Create corresponding User record with status='invited' and first_login=True
-        user_id = f"USR-{payload.employee_id}"
+        user_id = f"USR-{emp_id}"
         db["users"].insert_one({
             "user_id": user_id,
             "email": email_clean,
             "password_hash": None,
             "role": payload.role,
-            "employee_id": payload.employee_id,
+            "employee_id": emp_id,
             "status": "invited",
             "first_login": True,
             "created_at": now_str,
@@ -187,11 +208,11 @@ class EmployeeService:
             user_id=current_user["user_id"],
             action="EMPLOYEE_CREATED",
             entity_type="EMPLOYEE",
-            entity_id=payload.employee_id,
+            entity_id=emp_id,
             metadata={"email": email_clean, "role": payload.role, "department": payload.department},
         )
 
-        created_emp = serialize_doc(db["employees"].find_one({"employee_id": payload.employee_id}))
+        created_emp = serialize_doc(db["employees"].find_one({"employee_id": emp_id}))
         created_emp["activation_token"] = activation_token
         return created_emp
 

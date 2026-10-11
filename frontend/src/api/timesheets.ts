@@ -5,6 +5,7 @@ export interface SubmitTimesheetPayload {
   week_start_date: string;
   daily_hours: Record<string, number>;
   notes?: string;
+  work_start_notes?: string;
 }
 
 export interface PaginatedTimesheetsResponse {

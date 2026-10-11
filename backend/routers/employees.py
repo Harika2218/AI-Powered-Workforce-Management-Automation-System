@@ -57,6 +57,14 @@ def update_own_profile(payload: EmployeeProfilePatch, current_user: dict = Depen
     return EmployeeService.patch_own_profile(current_user, payload)
 
 
+@router.get("/departments", summary="Get Distinct Departments")
+def get_departments(current_user: dict = Depends(get_current_user)):
+    """
+    Retrieve all distinct departments present in workforce.
+    """
+    return EmployeeService.get_departments()
+
+
 @router.get("/{employee_id}", summary="Get Employee Details")
 def get_employee(employee_id: str, current_user: dict = Depends(get_current_user)):
     """

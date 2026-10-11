@@ -92,25 +92,25 @@ export const Header: React.FC<HeaderProps> = ({ title, subtitle }) => {
   };
 
   const roleBadgeStyle = () => {
-    if (role === 'HR') return 'bg-[#46513F]/10 text-[#46513F] border-[#46513F]/20';
-    if (role === 'MANAGER') return 'bg-[#71806B]/10 text-[#71806B] border-[#71806B]/25';
-    return 'bg-[#78756F]/10 text-[#242321] border-[#D8D4CC]';
+    if (role === 'HR') return 'bg-blue-50 text-[#2563EB] border-blue-200';
+    if (role === 'MANAGER') return 'bg-indigo-50 text-[#4F46E5] border-indigo-200';
+    return 'bg-slate-100 text-[#172033] border-[#E2E8F0]';
   };
 
   return (
-    <header className="sticky top-0 z-30 bg-[#FFFDF9]/95 backdrop-blur-md border-b border-[#D8D4CC] px-6 py-3.5 transition-all">
+    <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-[#E2E8F0] px-6 py-3.5 transition-all">
       <div className="flex items-center justify-between">
         {/* Left: Page Title & Breadcrumb */}
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold tracking-tight text-[#242321]">
+            <h1 className="text-xl font-bold tracking-tight text-[#172033]">
               {derivePageTitle()}
             </h1>
             <span className={`text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border ${roleBadgeStyle()}`}>
               {role || 'USER'}
             </span>
           </div>
-          <p className="text-xs text-[#78756F] mt-0.5">
+          <p className="text-xs text-[#64748B] mt-0.5">
             {subtitle || 'AI-Powered Workforce Automation System'}
           </p>
         </div>
@@ -120,10 +120,10 @@ export const Header: React.FC<HeaderProps> = ({ title, subtitle }) => {
           {/* AI Quick Query Button */}
           <button
             onClick={() => navigate(`/${role?.toLowerCase()}/ai-assistant`)}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#71806B]/40 bg-[#71806B]/5 text-[#46513F] text-xs font-semibold hover:bg-[#71806B]/15 transition-colors cursor-pointer"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50 text-[#2563EB] text-xs font-semibold hover:bg-blue-100 transition-colors cursor-pointer"
             title="Ask HR AI Assistant"
           >
-            <Sparkles className="w-3.5 h-3.5 text-[#71806B]" />
+            <Sparkles className="w-3.5 h-3.5 text-[#2563EB]" />
             <span>AI Assistant</span>
           </button>
 
@@ -134,12 +134,12 @@ export const Header: React.FC<HeaderProps> = ({ title, subtitle }) => {
                 setShowNotificationMenu(!showNotificationMenu);
                 setShowUserMenu(false);
               }}
-              className="relative p-2 rounded-lg border border-[#D8D4CC] bg-[#FFFDF9] hover:bg-[#EAE6DE]/50 text-[#242321] transition-colors cursor-pointer"
+              className="relative p-2 rounded-lg border border-[#E2E8F0] bg-white hover:bg-[#F1F5F9] text-[#172033] transition-colors cursor-pointer"
               aria-label="Notifications"
             >
-              <Bell className="w-4 h-4 text-[#242321]" />
+              <Bell className="w-4 h-4 text-[#172033]" />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-4 h-4 px-1 rounded-full bg-[#C8755A] text-[10px] font-bold text-white shadow-xs">
+                <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-4 h-4 px-1 rounded-full bg-[#DC2626] text-[10px] font-bold text-white shadow-xs">
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
@@ -147,12 +147,12 @@ export const Header: React.FC<HeaderProps> = ({ title, subtitle }) => {
 
             {/* Notification Dropdown */}
             {showNotificationMenu && (
-              <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-xl border border-[#D8D4CC] bg-[#FFFDF9] shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
-                <div className="p-3.5 border-b border-[#D8D4CC] flex items-center justify-between bg-[#F7F5F0]/60">
+              <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-xl border border-[#E2E8F0] bg-white shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                <div className="p-3.5 border-b border-[#E2E8F0] flex items-center justify-between bg-[#F8FAFC]">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-[#242321]">Notifications</span>
+                    <span className="text-sm font-semibold text-[#172033]">Notifications</span>
                     {unreadCount > 0 && (
-                      <span className="text-xs bg-[#C8755A]/15 text-[#C8755A] font-semibold px-1.5 py-0.5 rounded-full">
+                      <span className="text-xs bg-red-50 text-[#DC2626] border border-red-200 font-semibold px-1.5 py-0.5 rounded-full">
                         {unreadCount} new
                       </span>
                     )}
@@ -160,7 +160,7 @@ export const Header: React.FC<HeaderProps> = ({ title, subtitle }) => {
                   {unreadCount > 0 && (
                     <button
                       onClick={handleMarkAllRead}
-                      className="text-xs text-[#71806B] hover:text-[#46513F] font-medium flex items-center gap-1 cursor-pointer"
+                      className="text-xs text-[#2563EB] hover:text-[#1D4ED8] font-medium flex items-center gap-1 cursor-pointer"
                     >
                       <CheckCheck className="w-3.5 h-3.5" />
                       Mark all read
@@ -168,28 +168,28 @@ export const Header: React.FC<HeaderProps> = ({ title, subtitle }) => {
                   )}
                 </div>
 
-                <div className="max-h-80 overflow-y-auto divide-y divide-[#D8D4CC]/40">
+                <div className="max-h-80 overflow-y-auto divide-y divide-[#E2E8F0]/60">
                   {notifications.length === 0 ? (
-                    <div className="py-8 text-center text-xs text-[#78756F]">
+                    <div className="py-8 text-center text-xs text-[#64748B]">
                       No notifications at this time
                     </div>
                   ) : (
                     notifications.map((item) => (
                       <div
                         key={item.notification_id}
-                        className={`p-3 text-xs transition-colors hover:bg-[#EAE6DE]/30 flex items-start gap-2.5 ${
-                          !item.is_read ? 'bg-[#71806B]/5' : ''
+                        className={`p-3 text-xs transition-colors hover:bg-[#F8FAFC] flex items-start gap-2.5 ${
+                          !item.is_read ? 'bg-blue-50/40' : ''
                         }`}
                       >
                         <div
                           className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
-                            !item.is_read ? 'bg-[#C8755A]' : 'bg-[#D8D4CC]'
+                            !item.is_read ? 'bg-[#DC2626]' : 'bg-[#CBD5E1]'
                           }`}
                         />
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-[#242321] truncate">{item.title}</p>
-                          <p className="text-[#78756F] line-clamp-2 mt-0.5">{item.message}</p>
-                          <p className="text-[10px] text-[#78756F]/80 mt-1">
+                          <p className="font-semibold text-[#172033] truncate">{item.title}</p>
+                          <p className="text-[#64748B] line-clamp-2 mt-0.5">{item.message}</p>
+                          <p className="text-[10px] text-[#64748B]/80 mt-1">
                             {new Date(item.created_at).toLocaleTimeString([], {
                               hour: '2-digit',
                               minute: '2-digit',
@@ -199,7 +199,7 @@ export const Header: React.FC<HeaderProps> = ({ title, subtitle }) => {
                         {!item.is_read && (
                           <button
                             onClick={(e) => handleMarkAsRead(item.notification_id, e)}
-                            className="text-[11px] text-[#71806B] hover:text-[#46513F] shrink-0 font-medium cursor-pointer"
+                            className="text-[11px] text-[#2563EB] hover:text-[#1D4ED8] shrink-0 font-medium cursor-pointer"
                           >
                             Read
                           </button>
@@ -209,13 +209,13 @@ export const Header: React.FC<HeaderProps> = ({ title, subtitle }) => {
                   )}
                 </div>
 
-                <div className="p-2 border-t border-[#D8D4CC] bg-[#F7F5F0]/60 text-center">
+                <div className="p-2 border-t border-[#E2E8F0] bg-[#F8FAFC] text-center">
                   <button
                     onClick={() => {
                       setShowNotificationMenu(false);
                       navigate(`/${role?.toLowerCase()}/notifications`);
                     }}
-                    className="text-xs text-[#46513F] font-semibold hover:underline cursor-pointer"
+                    className="text-xs text-[#2563EB] font-semibold hover:underline cursor-pointer"
                   >
                     View All Notifications
                   </button>
@@ -231,31 +231,31 @@ export const Header: React.FC<HeaderProps> = ({ title, subtitle }) => {
                 setShowUserMenu(!showUserMenu);
                 setShowNotificationMenu(false);
               }}
-              className="flex items-center gap-2 p-1.5 pl-2 rounded-lg border border-[#D8D4CC] bg-[#FFFDF9] hover:bg-[#EAE6DE]/40 transition-colors cursor-pointer"
+              className="flex items-center gap-2 p-1.5 pl-2 rounded-lg border border-[#E2E8F0] bg-white hover:bg-[#F1F5F9] transition-colors cursor-pointer"
             >
-              <div className="w-7 h-7 rounded-full bg-[#46513F] text-white flex items-center justify-center text-xs font-bold">
+              <div className="w-7 h-7 rounded-full bg-[#2563EB] text-white flex items-center justify-center text-xs font-bold">
                 {employee?.first_name?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
               </div>
               <div className="hidden md:block text-left pr-1">
-                <p className="text-xs font-semibold text-[#242321] leading-tight">
+                <p className="text-xs font-semibold text-[#172033] leading-tight">
                   {employee?.full_name || user?.email?.split('@')[0]}
                 </p>
-                <p className="text-[10px] text-[#78756F] leading-tight capitalize">
+                <p className="text-[10px] text-[#64748B] leading-tight capitalize">
                   {employee?.designation || role}
                 </p>
               </div>
-              <ChevronDown className="w-3.5 h-3.5 text-[#78756F]" />
+              <ChevronDown className="w-3.5 h-3.5 text-[#64748B]" />
             </button>
 
             {/* Profile Dropdown */}
             {showUserMenu && (
-              <div className="absolute right-0 mt-2 w-56 rounded-xl border border-[#D8D4CC] bg-[#FFFDF9] shadow-xl z-50 p-2 animate-in fade-in zoom-in-95 duration-100">
-                <div className="px-3 py-2 border-b border-[#D8D4CC]/60 mb-1">
-                  <p className="text-xs font-semibold text-[#242321]">
+              <div className="absolute right-0 mt-2 w-56 rounded-xl border border-[#E2E8F0] bg-white shadow-xl z-50 p-2 animate-in fade-in zoom-in-95 duration-100">
+                <div className="px-3 py-2 border-b border-[#E2E8F0] mb-1">
+                  <p className="text-xs font-semibold text-[#172033]">
                     {employee?.full_name || 'Account'}
                   </p>
-                  <p className="text-[11px] text-[#78756F] truncate">{user?.email}</p>
-                  <div className="mt-1 flex items-center gap-1 text-[10px] text-[#46513F]">
+                  <p className="text-[11px] text-[#64748B] truncate">{user?.email}</p>
+                  <div className="mt-1 flex items-center gap-1 text-[10px] text-[#2563EB]">
                     <ShieldCheck className="w-3 h-3" />
                     <span className="font-semibold">{role} Portal</span>
                   </div>
@@ -267,16 +267,16 @@ export const Header: React.FC<HeaderProps> = ({ title, subtitle }) => {
                       setShowUserMenu(false);
                       navigate('/employee/profile');
                     }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-xs text-[#242321] hover:bg-[#EAE6DE]/50 rounded-lg transition-colors cursor-pointer"
+                    className="w-full flex items-center gap-2 px-3 py-2 text-xs text-[#172033] hover:bg-[#F1F5F9] rounded-lg transition-colors cursor-pointer"
                   >
-                    <UserIcon className="w-3.5 h-3.5 text-[#78756F]" />
+                    <UserIcon className="w-3.5 h-3.5 text-[#64748B]" />
                     <span>My Profile</span>
                   </button>
                 )}
 
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-xs text-[#C8755A] hover:bg-[#C8755A]/10 rounded-lg transition-colors cursor-pointer"
+                  className="w-full flex items-center gap-2 px-3 py-2 text-xs text-[#DC2626] hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                   <span className="font-semibold">Sign Out</span>

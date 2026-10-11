@@ -69,6 +69,9 @@ def test_attendance_workflow(employee_auth):
     )
     assert dup_co_res.status_code == 409
 
+    # Clean up test record so it doesn't pollute real date queries
+    db["attendance"].delete_many({"employee_id": emp_id, "date": test_date})
+
 
 def test_invalid_checkout_without_checkin():
     # Use HR token and test checking out a date where employee never checked in
@@ -99,3 +102,43 @@ def test_attendance_anomaly_detection():
     assert "anomaly_type" in first
     assert "severity" in first
     assert "employee_id" in first
+
+
+def test_attendance_listing_without_dates_and_with_filters():
+    hr_token = get_token("sarah.jenkins@company.com")
+    # 1. Unfiltered list returns existing records
+    res_all = client.get("/attendance?page=1&page_size=25", headers={"Authorization": f"Bearer {hr_token}"})
+    assert res_all.status_code == 200
+    data = res_all.json()
+    assert data["total"] > 0
+    assert len(data["items"]) == 25
+    first_item = data["items"][0]
+    assert "employee_name" in first_item
+    assert "department" in first_item
+    assert "working_hours" in first_item
+
+    # 2. Date filtered list works
+    res_date = client.get("/attendance?date_from=2026-10-05&date_to=2026-10-05&page=1&page_size=20", headers={"Authorization": f"Bearer {hr_token}"})
+    assert res_date.status_code == 200
+    date_data = res_date.json()
+    assert date_data["total"] > 0
+    for item in date_data["items"]:
+        assert item["date"] == "2026-10-05"
+
+
+def test_audit_logs_serialization_and_retrieval():
+    hr_token = get_token("sarah.jenkins@company.com")
+    res = client.get("/audit-logs?page=1&page_size=25", headers={"Authorization": f"Bearer {hr_token}"})
+    assert res.status_code == 200
+    data = res.json()
+    assert data["total"] > 0
+    assert len(data["items"]) == 25
+    for item in data["items"]:
+        assert "log_id" in item
+        assert "timestamp" in item
+        assert "user_email" in item
+        assert "action" in item
+        assert "details" in item
+        # Sensitive values must never be exposed
+        assert "password" not in str(item).lower() or "password_changed" in str(item).lower() or "password_reset" in str(item).lower()
+

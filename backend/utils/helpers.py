@@ -12,6 +12,9 @@ def today_date_str() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
 
+from bson import ObjectId
+
+
 def log_audit(
     user_id: str,
     action: str,
@@ -24,9 +27,15 @@ def log_audit(
     safe_metadata = {}
     if metadata:
         for k, v in metadata.items():
-            # Filter out sensitive fields
-            if any(secret_term in k.lower() for secret_term in ["pass", "token", "secret", "hash"]):
+            if k == "_id":
                 continue
+            # Filter out sensitive fields
+            if any(secret_term in k.lower() for secret_term in ["pass", "token", "secret", "hash", "jwt", "key"]):
+                continue
+            if isinstance(v, ObjectId):
+                v = str(v)
+            elif isinstance(v, dict):
+                v = {sub_k: str(sub_v) if isinstance(sub_v, ObjectId) else sub_v for sub_k, sub_v in v.items() if sub_k != "_id"}
             safe_metadata[k] = v
 
     log_entry = {

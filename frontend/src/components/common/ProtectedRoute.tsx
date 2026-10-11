@@ -14,9 +14,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowe
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#F7F5F0] flex flex-col items-center justify-center">
-        <div className="w-10 h-10 border-3 border-[#D8D4CC] border-t-[#46513F] rounded-full animate-spin"></div>
-        <p className="mt-4 text-sm font-medium text-[#78756F]">Loading workforce workspace...</p>
+      <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center">
+        <div className="w-10 h-10 border-3 border-[#E2E8F0] border-t-[#2563EB] rounded-full animate-spin"></div>
+        <p className="mt-4 text-sm font-medium text-[#64748B]">Loading workforce workspace...</p>
       </div>
     );
   }

@@ -1,38 +1,63 @@
 @import "tailwindcss";
 
 @theme {
-  --color-warm-ivory: #F7F5F0;
-  --color-soft-sand: #EAE6DE;
-  --color-warm-white: #FFFDF9;
-  --color-charcoal: #242321;
-  --color-warm-gray: #78756F;
-  --color-soft-stone: #D8D4CC;
-  --color-muted-sage: #71806B;
-  --color-deep-olive: #46513F;
-  --color-terracotta: #C8755A;
-  --color-soft-amber: #C99A52;
+  --color-primary-blue: #2563EB;
+  --color-deep-blue: #1D4ED8;
+  --color-light-blue: #EFF6FF;
+  --color-bright-green: #16A34A;
+  --color-light-green: #F0FDF4;
+  --color-clear-red: #DC2626;
+  --color-light-red: #FEF2F2;
+  --color-clear-amber: #D97706;
+  --color-light-amber: #FFFBEB;
 
-  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --color-main-text: #172033;
+  --color-secondary-text: #64748B;
+  --color-border-subtle: #E2E8F0;
+  --color-page-bg: #F8FAFC;
+  --color-card-bg: #FFFFFF;
+  --color-surface-bg: #F1F5F9;
+
+  /* Token aliases mapped away from umber/brown to clean modern enterprise palette */
+  --color-warm-ivory: #F8FAFC;
+  --color-soft-sand: #F1F5F9;
+  --color-warm-white: #FFFFFF;
+  --color-charcoal: #172033;
+  --color-warm-gray: #64748B;
+  --color-soft-stone: #E2E8F0;
+  --color-muted-sage: #16A34A;
+  --color-deep-olive: #2563EB;
+  --color-terracotta: #DC2626;
+  --color-soft-amber: #D97706;
+
+  --font-sans: 'Inter', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 :root {
-  --bg-primary: #F7F5F0;
-  --bg-surface: #EAE6DE;
-  --bg-card: #FFFDF9;
-  --text-primary: #242321;
-  --text-secondary: #78756F;
-  --border-color: #D8D4CC;
-  --accent-sage: #71806B;
-  --accent-olive: #46513F;
-  --accent-terracotta: #C8755A;
-  --accent-amber: #C99A52;
+  --bg-primary: #F8FAFC;
+  --bg-surface: #F1F5F9;
+  --bg-card: #FFFFFF;
+  --text-primary: #172033;
+  --text-secondary: #64748B;
+  --border-color: #E2E8F0;
+  --accent-blue: #2563EB;
+  --accent-deep-blue: #1D4ED8;
+  --accent-green: #16A34A;
+  --accent-red: #DC2626;
+  --accent-amber: #D97706;
+
+  /* Legacy aliases for compatibility */
+  --accent-sage: #16A34A;
+  --accent-olive: #2563EB;
+  --accent-terracotta: #DC2626;
+  --accent-amber: #D97706;
 }
 
 body {
   margin: 0;
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family: 'Inter', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -46,31 +71,43 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #D8D4CC;
+  background: #CBD5E1;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #78756F;
+  background: #94A3B8;
 }
 
-/* Base button and card helper styles */
+/* Enterprise design system helper styles */
 .enterprise-card {
-  background-color: #FFFDF9;
-  border: 1px solid #D8D4CC;
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 0.75rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
 }
 
 .enterprise-input {
-  background-color: #FFFDF9;
-  border: 1px solid #D8D4CC;
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 0.5rem;
   padding: 0.5rem 0.75rem;
-  color: #242321;
+  color: #172033;
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 .enterprise-input:focus {
   outline: none;
-  border-color: #46513F;
-  box-shadow: 0 0 0 2px rgba(70, 81, 63, 0.15);
+  border-color: #2563EB;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.enterprise-btn-primary {
+  background-color: #2563EB;
+  color: #FFFFFF;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  transition: background-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+.enterprise-btn-primary:hover {
+  background-color: #1D4ED8;
 }

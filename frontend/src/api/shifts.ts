@@ -13,7 +13,7 @@ export const shiftsApi = {
     return res.data;
   },
 
-  createShift: async (data: Omit<Shift, 'duration_hours'>): Promise<Shift> => {
+  createShift: async (data: Partial<Shift> & { name: string; start_time: string; end_time: string }): Promise<Shift> => {
     const res = await apiClient.post<Shift>('/shifts', data);
     return res.data;
   },

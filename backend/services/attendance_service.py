@@ -34,6 +34,9 @@ class AttendanceService:
         else:
             check_in_dt = datetime.now(timezone.utc)
 
+        if check_in_dt.tzinfo is None:
+            check_in_dt = check_in_dt.replace(tzinfo=timezone.utc)
+
         target_date_str = check_in_dt.strftime("%Y-%m-%d")
 
         # Check for existing attendance record today
@@ -122,33 +125,63 @@ class AttendanceService:
         else:
             check_out_dt = datetime.now(timezone.utc)
 
+        if check_out_dt.tzinfo is None:
+            check_out_dt = check_out_dt.replace(tzinfo=timezone.utc)
+
         target_date_str = check_out_dt.strftime("%Y-%m-%d")
 
-        existing = db["attendance"].find_one({"employee_id": emp_id, "date": target_date_str})
-        if not existing or not existing.get("check_in"):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Cannot check out: No active check-in record found for '{emp_id}' on {target_date_str}.",
+        # Look for open check-in record for this employee
+        existing = db["attendance"].find_one({
+            "employee_id": emp_id,
+            "date": target_date_str,
+            "check_in": {"$ne": None},
+            "check_out": None,
+        })
+        if not existing:
+            existing = db["attendance"].find_one(
+                {
+                    "employee_id": emp_id,
+                    "check_in": {"$ne": None},
+                    "check_out": None,
+                },
+                sort=[("date", DESCENDING), ("check_in", DESCENDING)],
             )
 
-        if existing.get("check_out"):
+        if not existing:
+            already_done = db["attendance"].find_one({"employee_id": emp_id, "date": target_date_str})
+            if already_done and already_done.get("check_out"):
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=f"Employee '{emp_id}' has already checked out today at {already_done['check_out']}.",
+                )
             raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=f"Employee '{emp_id}' has already checked out today at {existing['check_out']}.",
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Cannot check out: No active check-in record found for '{emp_id}'.",
             )
 
         check_in_dt = datetime.fromisoformat(existing["check_in"].replace("Z", "+00:00"))
+        if check_in_dt.tzinfo is None:
+            check_in_dt = check_in_dt.replace(tzinfo=timezone.utc)
+
         if check_out_dt < check_in_dt:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Check-out time cannot be earlier than check-in time.",
             )
 
+        # Standard hours from employee shift
+        standard_hours = 8.0
+        emp = db["employees"].find_one({"employee_id": emp_id})
+        if emp and emp.get("shift_id"):
+            shift = db["shifts"].find_one({"shift_id": emp["shift_id"]})
+            if shift and "duration_hours" in shift:
+                standard_hours = float(shift["duration_hours"])
+
         # Working hours calculation
         working_hours, overtime_hours, _ = calculate_working_hours(
             check_in_dt=check_in_dt,
             check_out_dt=check_out_dt,
-            standard_hours=8.0,
+            standard_hours=standard_hours,
         )
 
         final_status = existing["status"]
@@ -243,11 +276,14 @@ class AttendanceService:
         items = []
         for doc in cursor:
             d = serialize_doc(doc)
-            emp_info = emp_map.get(d["employee_id"], (None, None))
+            emp_info = emp_map.get(d["employee_id"], (d.get("employee_name") or d["employee_id"], d.get("department") or "Operations"))
             d["employee_name"] = emp_info[0]
             d["department"] = emp_info[1]
             d["check_in_time"] = d.get("check_in")
             d["check_out_time"] = d.get("check_out")
+            d["late_minutes"] = d.get("late_minutes", 0)
+            d["overtime_hours"] = d.get("overtime_hours", 0.0)
+            d["working_hours"] = d.get("working_hours", 0.0)
             items.append(d)
 
         total_pages = (total + page_size - 1) // page_size if total > 0 else 1

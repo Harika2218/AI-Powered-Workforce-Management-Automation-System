@@ -1,9 +1,35 @@
+import re
 from fastapi import HTTPException, status
 from backend.database import get_db
 from backend.models.base import serialize_doc
 from backend.utils.helpers import log_audit, create_notification, now_iso
 from backend.utils.permissions import get_manager_team_ids
 from backend.schemas.shift import ShiftCreate, ShiftUpdate, ShiftAssign
+
+
+def calculate_shift_duration(start_time: str, end_time: str) -> float:
+    try:
+        sh, sm = map(int, start_time.split(":"))
+        eh, em = map(int, end_time.split(":"))
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid time format. Expected HH:MM")
+
+    if not (0 <= sh <= 23 and 0 <= sm <= 59 and 0 <= eh <= 23 and 0 <= em <= 59):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Shift hours must be between 00:00 and 23:59")
+
+    start_mins = sh * 60 + sm
+    end_mins = eh * 60 + em
+
+    if start_mins == end_mins:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Shift start time and end time cannot be identical")
+
+    if end_mins < start_mins:
+        # Overnight shift spanning across midnight (e.g. 22:00 to 06:00)
+        total_mins = (24 * 60 - start_mins) + end_mins
+    else:
+        total_mins = end_mins - start_mins
+
+    return round(total_mins / 60.0, 2)
 
 
 class ShiftService:
@@ -16,21 +42,55 @@ class ShiftService:
     @staticmethod
     def create_shift(current_user: dict, payload: ShiftCreate) -> dict:
         db = get_db()
-        if db["shifts"].find_one({"shift_id": payload.shift_id}):
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Shift ID already exists")
+        shift_name = payload.name.strip()
+        if not shift_name:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Shift name cannot be empty")
 
-        doc = payload.model_dump()
+        # Check duplicate name
+        existing_name = db["shifts"].find_one({
+            "name": {"$regex": f"^{re.escape(shift_name)}$", "$options": "i"}
+        })
+        if existing_name:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Shift with name '{shift_name}' already exists"
+            )
+
+        # Validate or auto-generate unique shift_id
+        if payload.shift_id and payload.shift_id.strip():
+            shift_id = payload.shift_id.strip().upper()
+            if db["shifts"].find_one({"shift_id": shift_id}):
+                raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"Shift ID '{shift_id}' already exists")
+        else:
+            cleaned = re.sub(r"[^A-Z0-9]", "", shift_name.upper())[:4] or "SHFT"
+            candidate = f"SHIFT-{cleaned}"
+            shift_id = candidate
+            suffix = 1
+            while db["shifts"].find_one({"shift_id": shift_id}):
+                shift_id = f"{candidate}{suffix}"
+                suffix += 1
+
+        # Calculate exact duration (including overnight shifts)
+        duration_hours = calculate_shift_duration(payload.start_time, payload.end_time)
+
+        doc = {
+            "shift_id": shift_id,
+            "name": shift_name,
+            "start_time": payload.start_time,
+            "end_time": payload.end_time,
+            "duration_hours": duration_hours,
+        }
         db["shifts"].insert_one(doc)
 
         log_audit(
             user_id=current_user["user_id"],
             action="SHIFT_CREATED",
             entity_type="SHIFT",
-            entity_id=payload.shift_id,
+            entity_id=shift_id,
             metadata=doc,
         )
 
-        return serialize_doc(db["shifts"].find_one({"shift_id": payload.shift_id}))
+        return serialize_doc(db["shifts"].find_one({"shift_id": shift_id}))
 
     @staticmethod
     def update_shift(current_user: dict, shift_id: str, payload: ShiftUpdate) -> dict:
@@ -40,6 +100,11 @@ class ShiftService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Shift not found")
 
         updates = {k: v for k, v in payload.model_dump(exclude_unset=True).items() if v is not None}
+        start = updates.get("start_time", shift["start_time"])
+        end = updates.get("end_time", shift["end_time"])
+        if "start_time" in updates or "end_time" in updates:
+            updates["duration_hours"] = calculate_shift_duration(start, end)
+
         if updates:
             db["shifts"].update_one({"shift_id": shift_id}, {"$set": updates})
 

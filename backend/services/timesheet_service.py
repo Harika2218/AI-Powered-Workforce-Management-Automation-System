@@ -1,4 +1,6 @@
 import uuid
+import re
+from datetime import date
 from typing import Any
 from fastapi import HTTPException, status
 from pymongo import DESCENDING
@@ -19,15 +21,33 @@ class TimesheetService:
 
         verify_employee_access(current_user, emp_id)
 
+        date_val = payload.date or payload.week_start_date or date.today().isoformat()
+        hours = payload.hours_worked
+        if hours is None and payload.daily_hours:
+            hours = float(sum(payload.daily_hours.values()))
+        if hours is None:
+            hours = 8.0
+
+        emp = db["employees"].find_one({"employee_id": emp_id})
+        dept = emp.get("department", "Core") if emp else "Core"
+        project = payload.project_name or f"{dept} Operations"
+        task = payload.task_name or "Sprint deliverables and operational tasks"
+        desc = payload.description or payload.notes or "Completed scheduled operational tasks"
+        start_notes = payload.work_start_notes or "09:00 AM - Daily standup and task initiation"
+
         ts_id = f"TS-{uuid.uuid4().hex[:8].upper()}"
         doc = {
             "timesheet_id": ts_id,
             "employee_id": emp_id,
-            "date": payload.date,
-            "project_name": payload.project_name,
-            "task_name": payload.task_name,
-            "hours_worked": payload.hours_worked,
-            "description": payload.description,
+            "date": date_val,
+            "week_start_date": payload.week_start_date or date_val,
+            "project_name": project,
+            "task_name": task,
+            "hours_worked": hours,
+            "total_hours": hours,
+            "description": desc,
+            "notes": payload.notes or desc,
+            "work_start_notes": start_notes,
             "status": "Submitted",
             "approved_by": None,
             "reviewed_at": None,
@@ -41,7 +61,7 @@ class TimesheetService:
             action="TIMESHEET_SUBMITTED",
             entity_type="TIMESHEET",
             entity_id=ts_id,
-            metadata={"employee_id": emp_id, "hours": payload.hours_worked, "date": payload.date},
+            metadata={"employee_id": emp_id, "hours": hours, "date": date_val},
         )
 
         return serialize_doc(db["timesheets"].find_one({"timesheet_id": ts_id}))
@@ -63,6 +83,10 @@ class TimesheetService:
 
         updates = {k: v for k, v in payload.model_dump(exclude_unset=True).items() if v is not None}
         if updates:
+            if "hours_worked" in updates and "total_hours" not in updates:
+                updates["total_hours"] = updates["hours_worked"]
+            if "description" in updates and "notes" not in updates:
+                updates["notes"] = updates["description"]
             updates["status"] = "Submitted"  # Resubmits if modified
             updates["updated_at"] = now_iso()
             db["timesheets"].update_one({"timesheet_id": timesheet_id}, {"$set": updates})
@@ -92,6 +116,7 @@ class TimesheetService:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Cannot approve timesheet outside your team")
 
         now_str = now_iso()
+        comment_text = review.comments or review.reason
         db["timesheets"].update_one(
             {"timesheet_id": timesheet_id},
             {
@@ -99,7 +124,8 @@ class TimesheetService:
                     "status": "Approved",
                     "approved_by": user_emp_id or current_user["user_id"],
                     "reviewed_at": now_str,
-                    "comments": review.comments,
+                    "comments": comment_text,
+                    "manager_comments": comment_text,
                 }
             },
         )
@@ -109,7 +135,7 @@ class TimesheetService:
             action="TIMESHEET_APPROVED",
             entity_type="TIMESHEET",
             entity_id=timesheet_id,
-            metadata={"employee_id": ts["employee_id"], "hours": ts["hours_worked"]},
+            metadata={"employee_id": ts["employee_id"], "hours": ts.get("hours_worked") or ts.get("total_hours")},
         )
 
         target_user = db["users"].find_one({"employee_id": ts["employee_id"]})
@@ -117,7 +143,7 @@ class TimesheetService:
             create_notification(
                 user_id=target_user["user_id"],
                 title="Timesheet Approved",
-                message=f"Your timesheet for {ts['date']} ({ts['hours_worked']} hrs) was approved.",
+                message=f"Your timesheet for {ts.get('date') or ts.get('week_start_date')} ({ts.get('hours_worked', 8.0)} hrs) was approved.",
                 type="timesheet",
             )
 
@@ -138,6 +164,7 @@ class TimesheetService:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Cannot reject timesheet outside your team")
 
         now_str = now_iso()
+        feedback = review.comments or review.reason or "Requires revisions"
         db["timesheets"].update_one(
             {"timesheet_id": timesheet_id},
             {
@@ -145,7 +172,8 @@ class TimesheetService:
                     "status": "Rejected",
                     "approved_by": user_emp_id or current_user["user_id"],
                     "reviewed_at": now_str,
-                    "comments": review.comments,
+                    "comments": feedback,
+                    "manager_comments": feedback,
                 }
             },
         )
@@ -155,7 +183,7 @@ class TimesheetService:
             action="TIMESHEET_REJECTED",
             entity_type="TIMESHEET",
             entity_id=timesheet_id,
-            metadata={"employee_id": ts["employee_id"], "comments": review.comments},
+            metadata={"employee_id": ts["employee_id"], "comments": feedback},
         )
 
         target_user = db["users"].find_one({"employee_id": ts["employee_id"]})
@@ -163,7 +191,7 @@ class TimesheetService:
             create_notification(
                 user_id=target_user["user_id"],
                 title="Timesheet Rejected",
-                message=f"Your timesheet for {ts['date']} requires revisions: {review.comments or 'Contact manager'}",
+                message=f"Your timesheet for {ts.get('date') or ts.get('week_start_date')} requires revisions: {feedback}",
                 type="timesheet",
             )
 
@@ -200,13 +228,22 @@ class TimesheetService:
                 query["employee_id"] = employee_id
 
         if status_filter:
-            query["status"] = status_filter
+            query["status"] = {"$regex": f"^{re.escape(status_filter)}$", "$options": "i"}
         if date_from and date_to:
-            query["date"] = {"$gte": date_from, "$lte": date_to}
+            query["$or"] = [
+                {"date": {"$gte": date_from, "$lte": date_to}},
+                {"week_start_date": {"$gte": date_from, "$lte": date_to}},
+            ]
         elif date_from:
-            query["date"] = {"$gte": date_from}
+            query["$or"] = [
+                {"date": {"$gte": date_from}},
+                {"week_start_date": {"$gte": date_from}},
+            ]
         elif date_to:
-            query["date"] = {"$lte": date_to}
+            query["$or"] = [
+                {"date": {"$lte": date_to}},
+                {"week_start_date": {"$lte": date_to}},
+            ]
 
         total = db["timesheets"].count_documents(query)
         skip = (page - 1) * page_size
@@ -223,6 +260,12 @@ class TimesheetService:
             emp_info = emp_map.get(d["employee_id"], (None, None))
             d["employee_name"] = emp_info[0]
             d["department"] = emp_info[1]
+            d["week_start_date"] = d.get("week_start_date") or d.get("date")
+            d["total_hours"] = d.get("total_hours") if d.get("total_hours") is not None else d.get("hours_worked", 0.0)
+            d["hours_worked"] = d.get("hours_worked") if d.get("hours_worked") is not None else d.get("total_hours", 0.0)
+            d["notes"] = d.get("notes") or d.get("description")
+            d["work_start_notes"] = d.get("work_start_notes") or "09:00 AM - Shift standup and activity planning"
+            d["manager_comments"] = d.get("manager_comments") or d.get("comments")
             items.append(d)
 
         total_pages = (total + page_size - 1) // page_size if total > 0 else 1

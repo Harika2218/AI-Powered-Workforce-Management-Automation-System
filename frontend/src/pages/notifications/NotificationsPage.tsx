@@ -53,12 +53,12 @@ export const NotificationsPage: React.FC = () => {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-[#E2E8F0]">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-[#242321]">
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-[#172033]">
             Notification Center
           </h2>
-          <p className="text-xs text-[#78756F] mt-1">
+          <p className="text-xs text-[#64748B] mt-1 font-medium">
             System announcements, leave decisions, timesheet updates, and roster alerts
           </p>
         </div>
@@ -67,7 +67,7 @@ export const NotificationsPage: React.FC = () => {
           {unreadCount > 0 && (
             <button
               onClick={handleMarkAllRead}
-              className="flex items-center gap-1.5 px-3 py-1.5 border border-[#D8D4CC] bg-[#FFFDF9] text-[#46513F] text-xs font-semibold rounded-lg hover:bg-[#EAE6DE] cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 border border-[#E2E8F0] bg-white text-[#2563EB] hover:bg-blue-50 text-xs font-semibold rounded-lg shadow-xs transition-colors cursor-pointer"
             >
               <CheckCheck className="w-3.5 h-3.5" />
               <span>Mark all as read</span>
@@ -77,11 +77,11 @@ export const NotificationsPage: React.FC = () => {
       </div>
 
       {error && (
-        <div className="p-4 rounded-xl bg-[#C8755A]/10 border border-[#C8755A]/30 flex items-center justify-between text-xs text-[#C8755A]">
+        <div className="p-4 rounded-xl bg-red-50 border border-red-200 flex items-center justify-between text-xs text-[#DC2626] font-medium">
           <span>{error}</span>
           <button
             onClick={fetchNotifications}
-            className="px-3 py-1 bg-[#46513F] text-white text-xs font-bold rounded-lg hover:bg-[#46513F]/90 cursor-pointer"
+            className="px-3 py-1 bg-[#2563EB] text-white text-xs font-bold rounded-lg hover:bg-[#1D4ED8] cursor-pointer shadow-xs"
           >
             Retry
           </button>
@@ -89,51 +89,64 @@ export const NotificationsPage: React.FC = () => {
       )}
 
       {/* Filter bar */}
-      <div className="flex items-center justify-between border-b border-[#D8D4CC] pb-3 text-xs">
+      <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-2 text-xs">
         <div className="flex gap-4 font-semibold">
           <button
             onClick={() => setUnreadOnly(false)}
-            className={`cursor-pointer ${!unreadOnly ? 'text-[#46513F] underline underline-offset-8 font-bold' : 'text-[#78756F]'}`}
+            className={`cursor-pointer pb-2 transition-all font-medium ${
+              !unreadOnly
+                ? 'text-[#2563EB] border-b-2 border-[#2563EB] font-bold'
+                : 'text-[#64748B] hover:text-[#172033]'
+            }`}
           >
             All Notifications
           </button>
           <button
             onClick={() => setUnreadOnly(true)}
-            className={`cursor-pointer ${unreadOnly ? 'text-[#46513F] underline underline-offset-8 font-bold' : 'text-[#78756F]'}`}
+            className={`cursor-pointer pb-2 transition-all font-medium flex items-center gap-1.5 ${
+              unreadOnly
+                ? 'text-[#2563EB] border-b-2 border-[#2563EB] font-bold'
+                : 'text-[#64748B] hover:text-[#172033]'
+            }`}
           >
-            Unread Only ({unreadCount})
+            <span>Unread Only</span>
+            {unreadCount > 0 && (
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-red-100 text-[#DC2626] font-bold">
+                {unreadCount}
+              </span>
+            )}
           </button>
         </div>
       </div>
 
       {/* Notifications List */}
-      <div className="bg-[#FFFDF9] border border-[#D8D4CC] rounded-2xl divide-y divide-[#D8D4CC]/50 shadow-xs overflow-hidden">
+      <div className="bg-white border border-[#E2E8F0] rounded-2xl divide-y divide-[#E2E8F0] shadow-xs overflow-hidden">
         {loading ? (
-          <div className="py-12 text-center text-xs text-[#78756F]">Loading notification feed...</div>
+          <div className="py-12 text-center text-xs text-[#64748B] font-medium">Loading notification feed...</div>
         ) : notifications.length === 0 ? (
-          <div className="py-12 text-center text-xs text-[#78756F]">
-            <Bell className="w-8 h-8 mx-auto text-[#D8D4CC] mb-2" />
-            <p className="font-semibold text-[#242321]">No notifications to display</p>
-            <p className="text-[#78756F] mt-0.5">You're completely up to date.</p>
+          <div className="py-12 text-center text-xs text-[#64748B]">
+            <Bell className="w-10 h-10 mx-auto text-[#CBD5E1] mb-2" />
+            <p className="font-bold text-[#172033]">No notifications to display</p>
+            <p className="text-[#64748B] mt-0.5">You're completely up to date.</p>
           </div>
         ) : (
           notifications.map((item) => (
             <div
               key={item.notification_id}
               className={`p-4 transition-colors flex items-start justify-between gap-4 ${
-                !item.is_read ? 'bg-[#71806B]/5' : 'hover:bg-[#EAE6DE]/20'
+                !item.is_read ? 'bg-blue-50/30 border-l-4 border-l-[#2563EB]' : 'hover:bg-[#F8FAFC]'
               }`}
             >
               <div className="flex items-start gap-3">
                 <div
-                  className={`w-2.5 h-2.5 rounded-full mt-1.5 shrink-0 ${
-                    !item.is_read ? 'bg-[#C8755A]' : 'bg-[#D8D4CC]'
+                  className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
+                    !item.is_read ? 'bg-[#2563EB]' : 'bg-[#CBD5E1]'
                   }`}
                 />
                 <div>
-                  <h4 className="text-xs font-bold text-[#242321]">{item.title}</h4>
-                  <p className="text-xs text-[#78756F] mt-0.5 leading-relaxed">{item.message}</p>
-                  <div className="flex items-center gap-1 text-[10px] text-[#78756F]/80 mt-2">
+                  <h4 className="text-xs font-bold text-[#172033]">{item.title}</h4>
+                  <p className="text-xs text-[#64748B] mt-0.5 leading-relaxed font-medium">{item.message}</p>
+                  <div className="flex items-center gap-1 text-[10px] text-[#94A3B8] mt-2 font-medium">
                     <Clock className="w-3 h-3" />
                     <span>{new Date(item.created_at).toLocaleString()}</span>
                   </div>
@@ -143,7 +156,7 @@ export const NotificationsPage: React.FC = () => {
               {!item.is_read && (
                 <button
                   onClick={() => handleMarkAsRead(item.notification_id)}
-                  className="px-2.5 py-1 text-xs font-semibold text-[#71806B] hover:text-[#46513F] hover:bg-[#EAE6DE] rounded-md transition-colors cursor-pointer shrink-0"
+                  className="px-2.5 py-1 text-xs font-semibold text-[#2563EB] hover:text-[#1D4ED8] hover:bg-blue-50 rounded-md transition-colors cursor-pointer shrink-0"
                 >
                   Mark as read
                 </button>

@@ -2,11 +2,11 @@ from pydantic import BaseModel, Field
 
 
 class ShiftCreate(BaseModel):
-    shift_id: str = Field(..., pattern=r"^[A-Z0-9_-]{3,20}$")
+    shift_id: str | None = Field(default=None, pattern=r"^[A-Z0-9_-]{3,20}$")
     name: str = Field(..., min_length=2, max_length=50)
     start_time: str = Field(..., pattern=r"^\d{2}:\d{2}$", description="HH:MM format, e.g. 09:00")
     end_time: str = Field(..., pattern=r"^\d{2}:\d{2}$", description="HH:MM format, e.g. 17:00")
-    duration_hours: float = Field(..., gt=0, le=24)
+    duration_hours: float | None = Field(default=None, gt=0, le=24)
 
 
 class ShiftUpdate(BaseModel):

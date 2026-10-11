@@ -34,11 +34,17 @@ class AnalyticsService:
         on_leave_today = sum(1 for r in today_records if r.get("status") == "On Leave")
         overtime_today = round(sum(r.get("overtime_hours", 0.0) for r in today_records), 2)
 
-        # Fallback if no records generated for today yet (e.g. weekend): use latest available date
-        if not today_records:
-            latest = db["attendance"].find_one({}, sort=[("date", -1)])
-            if latest:
-                target_date = latest["date"]
+        # Fallback if no records generated for today yet (e.g. weekend): use latest available date with full records
+        if not today_records or len(today_records) < 10:
+            pipe = [
+                {"$group": {"_id": "$date", "cnt": {"$sum": 1}}},
+                {"$match": {"cnt": {"$gte": 10}}},
+                {"$sort": {"_id": -1}},
+                {"$limit": 1},
+            ]
+            agg_res = list(db["attendance"].aggregate(pipe))
+            if agg_res:
+                target_date = agg_res[0]["_id"]
                 today_records = list(db["attendance"].find({"date": target_date}))
                 present_today = sum(1 for r in today_records if r.get("status") in ["Present", "Late", "Half Day"])
                 absent_today = sum(1 for r in today_records if r.get("status") == "Absent")

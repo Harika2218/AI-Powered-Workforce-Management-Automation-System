@@ -18,12 +18,14 @@ def save_payroll(payload: PayrollCreate, current_user: dict = Depends(require_hr
 @router.get("/my", response_model=list[PayrollResponse], summary="My Payroll Statements")
 def get_my_payroll(
     pay_period: str | None = Query(None, description="YYYY-MM"),
+    month: str | None = Query(None, description="YYYY-MM alias"),
     current_user: dict = Depends(get_current_user),
 ):
     """
     Retrieve personal payroll records for the authenticated employee.
     """
-    return PayrollService.get_my_payroll(current_user, pay_period)
+    effective_period = pay_period or month
+    return PayrollService.get_my_payroll(current_user, effective_period)
 
 
 @router.get("/statement/{employee_id}", response_model=list[PayrollResponse], summary="Employee Payroll Statement")

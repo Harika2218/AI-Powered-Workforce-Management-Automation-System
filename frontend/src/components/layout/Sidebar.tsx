@@ -69,17 +69,17 @@ export const Sidebar: React.FC = () => {
   const navItems = getNavItems();
 
   return (
-    <aside className="w-64 shrink-0 bg-[#FFFDF9] border-r border-[#D8D4CC] flex flex-col min-h-screen">
+    <aside className="w-64 shrink-0 bg-white border-r border-[#E2E8F0] flex flex-col min-h-screen">
       {/* Brand logo & title */}
-      <div className="p-5 border-b border-[#D8D4CC] flex items-center gap-3">
-        <div className="w-9 h-9 rounded-xl bg-[#46513F] flex items-center justify-center text-white shadow-xs">
-          <span className="font-extrabold text-sm tracking-tighter">WF</span>
+      <div className="p-5 border-b border-[#E2E8F0] flex items-center gap-3">
+        <div className="w-9 h-9 rounded-xl bg-[#2563EB] flex items-center justify-center text-white shadow-sm shadow-blue-500/20">
+          <span className="font-extrabold text-sm tracking-tight">WF</span>
         </div>
         <div>
-          <h2 className="font-bold text-sm tracking-tight text-[#242321]">
+          <h2 className="font-bold text-sm tracking-tight text-[#172033]">
             Workforce AI
           </h2>
-          <span className="text-[10px] uppercase font-semibold tracking-wider text-[#71806B]">
+          <span className="text-[10px] uppercase font-bold tracking-wider text-[#2563EB]">
             Enterprise Suite
           </span>
         </div>
@@ -87,7 +87,7 @@ export const Sidebar: React.FC = () => {
 
       {/* Navigation Links */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        <div className="px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-[#78756F]">
+        <div className="px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-[#64748B]">
           Navigation
         </div>
 
@@ -101,8 +101,8 @@ export const Sidebar: React.FC = () => {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   isActive
-                    ? 'bg-[#46513F] text-white shadow-xs'
-                    : 'text-[#242321] hover:bg-[#EAE6DE]/60 hover:text-[#46513F]'
+                    ? 'bg-[#2563EB] text-white shadow-sm shadow-blue-500/25'
+                    : 'text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#172033]'
                 }`
               }
             >
@@ -114,13 +114,13 @@ export const Sidebar: React.FC = () => {
       </nav>
 
       {/* Footer System Status */}
-      <div className="p-4 border-t border-[#D8D4CC] bg-[#F7F5F0]/60 text-xs text-[#78756F]">
+      <div className="p-4 border-t border-[#E2E8F0] bg-[#F8FAFC] text-xs text-[#64748B]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-[#71806B] animate-pulse"></span>
-            <span className="text-[11px] font-medium text-[#242321]">System Live</span>
+            <span className="w-2 h-2 rounded-full bg-[#16A34A] animate-pulse"></span>
+            <span className="text-[11px] font-semibold text-[#172033]">System Live</span>
           </div>
-          <span className="text-[10px] font-mono text-[#78756F]">v1.0</span>
+          <span className="text-[10px] font-mono text-[#64748B]">v1.0</span>
         </div>
       </div>
     </aside>

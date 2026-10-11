@@ -5,7 +5,7 @@ import { Header } from './Header';
 
 export const AppLayout: React.FC = () => {
   return (
-    <div className="min-h-screen bg-[#F7F5F0] flex flex-row">
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-row">
       {/* Dynamic Role Sidebar */}
       <Sidebar />
 
