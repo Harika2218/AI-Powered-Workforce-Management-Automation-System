@@ -1,6 +1,23 @@
-# AI-Powered Workforce Management Automation System - Backend
+# AI-Powered Workforce Management Automation System
 
-Production-grade, database-driven, secure monolithic backend built with **FastAPI**, **MongoDB (PyMongo)**, **Pydantic v2**, **Argon2id**, and **JWT**.
+Production-grade, database-driven, secure monolithic workforce management platform built with **FastAPI**, **MongoDB (PyMongo)**, **React 19**, **TypeScript**, **Tailwind CSS**, and **JWT**.
+
+---
+
+## 🌐 Live Cloud Deployment
+
+* 🚀 **Live Frontend Application (Vercel):** [https://ai-powered-workforce-management.vercel.app](https://ai-powered-workforce-management.vercel.app)
+* ⚙️ **Live Backend API (Render):** [https://ai-powered-workforce-management.onrender.com](https://ai-powered-workforce-management.onrender.com)
+* 📖 **Interactive Swagger API Docs:** [https://ai-powered-workforce-management.onrender.com/docs](https://ai-powered-workforce-management.onrender.com/docs)
+* 🩺 **Backend Health Check:** [https://ai-powered-workforce-management.onrender.com/health](https://ai-powered-workforce-management.onrender.com/health)
+
+### 🔑 Demo Login Credentials
+
+| Role | Email | Password | Access Scope |
+| :--- | :--- | :--- | :--- |
+| **HR Administrator** | `sarah.jenkins@company.com` | `Password123!` | Complete organization management, payroll, audit, AI assistant |
+| **Engineering Manager** | `alexander.wright@company.com` | `Password123!` | Scoped team approvals, attendance, timesheets, performance |
+| **Employee** | `josiah.harris@company.com` | `Password123!` | Personal profile, clock in/out, leave requests, timesheets |
 
 ---
 

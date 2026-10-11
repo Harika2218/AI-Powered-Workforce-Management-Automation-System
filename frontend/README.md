@@ -1,6 +1,8 @@
 # AI-Powered Workforce Management Automation System - Frontend
 
-Modern, enterprise-grade, data-driven HR Workforce Management frontend built with **React**, **TypeScript**, **Vite**, **Tailwind CSS**, and **Recharts**.
+Modern, enterprise-grade, data-driven HR Workforce Management frontend built with **React 19**, **TypeScript**, **Vite**, **Tailwind CSS**, and **Recharts**.
+
+* 🚀 **Live Production Deployment:** [https://ai-powered-workforce-management.vercel.app](https://ai-powered-workforce-management.vercel.app)
 
 ---
 
@@ -13,29 +15,30 @@ React 19 + TypeScript (Vite)
 Axios Centralized API Layer
        │
        ▼
-FastAPI Backend (Port 8000)
+FastAPI Backend (Port 8000 / Render Cloud)
        │
        ▼
-MongoDB (workforce_management)
+MongoDB Atlas (workforce_management)
 ```
 
 - **Single Source of Truth**: 100% database-driven. Absolutely zero hardcoded/mock business statistics or placeholder counts.
-- **Enterprise Design System**: Inspired by the mature, spacious aesthetic of TCS CHROMA.
+- **Enterprise Design System**: Modern, spacious, high-contrast enterprise design system.
 
 ### Exact Color System
 
 | Token | Hex | Role in Interface |
 | :--- | :--- | :--- |
-| **Warm Ivory** | `#F7F5F0` | Primary application canvas background |
-| **Soft Sand** | `#EAE6DE` | Secondary surfaces, subtle pill containers |
-| **Warm White** | `#FFFDF9` | Elevated cards, tables, modals |
-| **Charcoal** | `#242321` | High-contrast primary typography |
-| **Warm Gray** | `#78756F` | Secondary captions, timestamps, column labels |
-| **Soft Stone** | `#D8D4CC` | Subtle border dividers |
-| **Muted Sage** | `#71806B` | Primary accent, positive indicators, attendance |
-| **Deep Olive** | `#46513F` | Active navigation, primary action buttons, key metrics |
-| **Terracotta** | `#C8755A` | Urgent notifications, anomalies, absence alerts |
-| **Soft Amber** | `#C99A52` | Warning states, pending actions, tardiness |
+| **Primary Blue** | `#2563EB` | Primary navigation, key actions, selected states, benchmarks |
+| **Deep Blue** | `#1D4ED8` | Hover states, active buttons, focused controls |
+| **Light Blue** | `#EFF6FF` | Subtle highlights, active badges, soft cards |
+| **Bright Green** | `#16A34A` | Positive metrics, successful check-ins, healthy statuses |
+| **Clear Red** | `#DC2626` | Urgent alerts, anomalies, rejection states, errors |
+| **Clear Amber** | `#D97706` | Pending approvals, warnings, review flags |
+| **Page Canvas** | `#F8FAFC` | Primary light page background |
+| **Card White** | `#FFFFFF` | Elevated cards, tables, forms, modals |
+| **Charcoal / Primary Text** | `#172033` | Crisp, readable typography |
+| **Muted Slate** | `#64748B` | Secondary captions, timestamps, column labels |
+| **Border Slate** | `#E2E8F0` | Structural dividers and table borders |
 
 ---
 

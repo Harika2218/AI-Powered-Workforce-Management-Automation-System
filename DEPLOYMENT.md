@@ -1,10 +1,19 @@
 # Production & Cloud Deployment Guide
 
-This guide explains how to deploy both the **FastAPI Backend (with MongoDB)** and the **Vite React Frontend (on Vercel)** so they communicate seamlessly.
+This guide documents the deployed **FastAPI Backend (with MongoDB Atlas)** and the **Vite React Frontend (on Vercel)**.
 
 ---
 
-## 1. Why Did the Error Occur on Vercel?
+## 🌐 Live Production Links
+
+* **Frontend (Vercel):** [https://ai-powered-workforce-management.vercel.app](https://ai-powered-workforce-management.vercel.app)
+* **Backend API (Render):** [https://ai-powered-workforce-management.onrender.com](https://ai-powered-workforce-management.onrender.com)
+* **Interactive Swagger UI:** [https://ai-powered-workforce-management.onrender.com/docs](https://ai-powered-workforce-management.onrender.com/docs)
+* **API Health Check:** [https://ai-powered-workforce-management.onrender.com/health](https://ai-powered-workforce-management.onrender.com/health)
+
+---
+
+## 1. Cloud Architecture Overview
 
 When you deploy only the `frontend/` directory to Vercel:
 1. **The Backend is Missing**: Vercel is a hosting service for static frontend assets and serverless functions. It does not automatically run your Python FastAPI server or your local MongoDB database.
