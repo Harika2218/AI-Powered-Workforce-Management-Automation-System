@@ -10,6 +10,7 @@ Production-grade, database-driven, secure monolithic workforce management platfo
 * ⚙️ **Live Backend API (Render):** [https://ai-powered-workforce-management.onrender.com](https://ai-powered-workforce-management.onrender.com)
 * 📖 **Interactive Swagger API Docs:** [https://ai-powered-workforce-management.onrender.com/docs](https://ai-powered-workforce-management.onrender.com/docs)
 * 🩺 **Backend Health Check:** [https://ai-powered-workforce-management.onrender.com/health](https://ai-powered-workforce-management.onrender.com/health)
+* 📋 **Agile Documentation (Sprint Plans, User Stories, Task Boards, Metrics):** [AGILE_DOCUMENTATION.md](AGILE_DOCUMENTATION.md)
 
 ### 🔑 Demo Login Credentials
 

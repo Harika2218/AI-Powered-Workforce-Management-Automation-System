@@ -1,3 +1,4 @@
+import os
 import logging
 import certifi
 from pymongo import MongoClient, ASCENDING, IndexModel
@@ -16,11 +17,18 @@ def get_client() -> MongoClient:
         settings = get_settings()
         url = settings.MONGODB_URL.strip()
         client_kwargs = {
-            "serverSelectionTimeoutMS": 5000,
-            "connectTimeoutMS": 5000,
+            "serverSelectionTimeoutMS": 10000,
+            "connectTimeoutMS": 10000,
         }
-        if "mongodb+srv" in url or "ssl=true" in url.lower():
-            client_kwargs["tlsCAFile"] = certifi.where()
+        if "mongodb+srv" in url or "ssl=true" in url.lower() or "tls=true" in url.lower():
+            if "tlscafile" not in url.lower():
+                try:
+                    client_kwargs["tlsCAFile"] = certifi.where()
+                except Exception:
+                    pass
+            if "tlsallowinvalidcertificates=true" in url.lower() or os.environ.get("MONGODB_TLS_INSECURE", "").lower() in ("true", "1"):
+                client_kwargs["tlsAllowInvalidCertificates"] = True
+
         _client = MongoClient(
             url,
             **client_kwargs,
