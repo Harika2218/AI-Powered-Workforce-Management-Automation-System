@@ -4,8 +4,9 @@ Production-grade, database-driven, secure monolithic workforce management platfo
 
 ---
 
-## 🌐 Live Cloud Deployment
+## 🌐 Live Cloud Deployment & Demo
 
+* 🎥 **Project Demo Video:** [Watch Demo on Google Drive](https://drive.google.com/file/d/1jb25NpxBod0JPvuIgtprIgo7nzXoj38V/view?usp=sharing)
 * 🚀 **Live Frontend Application (Vercel):** [https://ai-powered-workforce-management.vercel.app](https://ai-powered-workforce-management.vercel.app)
 * ⚙️ **Live Backend API (Render):** [https://ai-powered-workforce-management.onrender.com](https://ai-powered-workforce-management.onrender.com)
 * 📖 **Interactive Swagger API Docs:** [https://ai-powered-workforce-management.onrender.com/docs](https://ai-powered-workforce-management.onrender.com/docs)
